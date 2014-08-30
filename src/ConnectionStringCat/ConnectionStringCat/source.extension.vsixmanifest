@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
   <Metadata>
-    <Identity Id="bf2c1368-abc7-4dd2-a198-8374f7a26974" Version="1.0" Language="en-US" Publisher="Sergey Uskov" />
+    <Identity Id="8d165b01-e0c7-48c4-a99f-beb0f25dda96" Version="1.0" Language="en-US" Publisher="Sergey Uskov" />
     <DisplayName>ConnectionStringCat</DisplayName>
-    <Description>This package provides a smart and easy way to switch connection strings and other config tokens (urls, service addresses, options, e.t.c.)</Description>
+    <Description>This package provides an easy way to switch connection strings in configs across the solution</Description>
   </Metadata>
   <Installation InstalledByMsi="false">
     <InstallationTarget Id="Microsoft.VisualStudio.Pro" Version="[12.0]" />

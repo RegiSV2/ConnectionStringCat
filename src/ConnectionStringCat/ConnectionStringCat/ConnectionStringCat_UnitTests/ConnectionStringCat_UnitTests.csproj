@@ -4,7 +4,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{F49D6F50-8E95-42BC-BDDB-2A5892030D7D}</ProjectGuid>
+    <ProjectGuid>{41703C79-3287-43EE-9A52-88F5B8AC7907}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>ConnectionStringCat_UnitTests</RootNamespace>
@@ -71,7 +71,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ConnectionStringCat.csproj">
-      <Project>{5A54AE0B-E6C5-4F87-ADE0-8389D47EDA5B}</Project>
+      <Project>{A37197DC-EEF5-49CE-B0B9-54AFC96DA129}</Project>
       <Name>ConnectionStringCat</Name>
     </ProjectReference>
   </ItemGroup>

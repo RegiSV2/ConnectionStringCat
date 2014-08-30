@@ -6,8 +6,8 @@ namespace SergeyUskov.ConnectionStringCat
 {
     static class GuidList
     {
-        public const string guidConnectionStringCatPkgString = "bf2c1368-abc7-4dd2-a198-8374f7a26974";
-        public const string guidConnectionStringCatCmdSetString = "9bebfb67-4d8e-4275-b3a1-f29a81be5e2e";
+        public const string guidConnectionStringCatPkgString = "8d165b01-e0c7-48c4-a99f-beb0f25dda96";
+        public const string guidConnectionStringCatCmdSetString = "ae366413-f8dd-4be1-8e7f-5b3219828d78";
 
         public static readonly Guid guidConnectionStringCatCmdSet = new Guid(guidConnectionStringCatCmdSetString);
     };
