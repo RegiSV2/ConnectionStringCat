@@ -15,6 +15,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConnectionStringCat_UnitTests", "ConnectionStringCat\ConnectionStringCat_UnitTests\ConnectionStringCat_UnitTests.csproj", "{41703C79-3287-43EE-9A52-88F5B8AC7907}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConStringCat.Core", "ConStringCat.Core\ConStringCat.Core.csproj", "{24F95C37-6620-46AB-90A5-AFFA930E3D4F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{7A9FD4DA-FDF8-4AAA-B8E7-FBB62AB669CC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConStringCat.Core.UnitTests", "ConStringCat.Core.UnitTests\ConStringCat.Core.UnitTests.csproj", "{6CF2FE98-92AC-49BB-837C-2E0C60264225}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,8 +39,21 @@ Global
 		{41703C79-3287-43EE-9A52-88F5B8AC7907}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{41703C79-3287-43EE-9A52-88F5B8AC7907}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{41703C79-3287-43EE-9A52-88F5B8AC7907}.Release|Any CPU.Build.0 = Release|Any CPU
+		{24F95C37-6620-46AB-90A5-AFFA930E3D4F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{24F95C37-6620-46AB-90A5-AFFA930E3D4F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{24F95C37-6620-46AB-90A5-AFFA930E3D4F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{24F95C37-6620-46AB-90A5-AFFA930E3D4F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6CF2FE98-92AC-49BB-837C-2E0C60264225}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6CF2FE98-92AC-49BB-837C-2E0C60264225}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6CF2FE98-92AC-49BB-837C-2E0C60264225}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6CF2FE98-92AC-49BB-837C-2E0C60264225}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{F4CAC40C-E28E-47FC-89CE-58D836F8CE0B} = {7A9FD4DA-FDF8-4AAA-B8E7-FBB62AB669CC}
+		{41703C79-3287-43EE-9A52-88F5B8AC7907} = {7A9FD4DA-FDF8-4AAA-B8E7-FBB62AB669CC}
+		{6CF2FE98-92AC-49BB-837C-2E0C60264225} = {7A9FD4DA-FDF8-4AAA-B8E7-FBB62AB669CC}
 	EndGlobalSection
 EndGlobal
