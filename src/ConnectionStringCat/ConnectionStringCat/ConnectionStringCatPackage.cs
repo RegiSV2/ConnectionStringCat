@@ -6,6 +6,8 @@ using System.Globalization;
 using System.Runtime.InteropServices;
 using Autofac;
 using ConStringCat.Core;
+using ConStringCat.Core.Model;
+using ConStringCat.Core.VSInterop;
 using EnvDTE;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.PlatformUI;
@@ -58,28 +60,43 @@ namespace SergeyUskov.ConnectionStringCat
 			Debug.WriteLine(string.Format(CultureInfo.CurrentCulture, "Entering Initialize() of: {0}", ToString()));
 			base.Initialize();
 
-			BindCommands();
+			var variantsService = InitVariantSets();
+			var bindings = CreateCommandBindings(variantsService);
+			BindCommands(bindings);
 		}
 
-		private void BindCommands()
+		private VariantsSetService InitVariantSets()
+		{
+			var variants = new ConnectionStringVariantsSet("Database");
+			variants.AddVariant(new ConnectionStringVariant("First", "First string"));
+			variants.AddVariant(new ConnectionStringVariant("Second", "Second string"));
+			variants.AddVariant(new ConnectionStringVariant("Third", "Third string"));
+
+			var service = IoC.Container.Resolve<VariantsSetService>();
+			service.SetVariantsSet(variants);
+			return service;
+		}
+
+		private void BindCommands(IEnumerable<VSCommandBinder> commandBinders)
 		{
 			var mcs = GetOleMenuCommandService();
 			if (null == mcs) return;
 
-			foreach (var commandBinder in CreateCommandBindings(GetCommandFactory()))
+			foreach (var commandBinder in commandBinders)
 			{
 				mcs.AddCommand(commandBinder.NativeCommand);
 			}
 		}
 
-		private IEnumerable<VSCommandBinder> CreateCommandBindings(CommandBinderFactory commandFactory)
+		private IEnumerable<VSCommandBinder> CreateCommandBindings(VariantsSetService service)
 		{
+			var commandFactory = GetCommandFactory();
 
 			yield return commandFactory.BindToMenuCommand((int) PkgCmdIdList.SetupConStringsCmdId, MenuItemCallback);
 			yield return commandFactory.BindToOleMenuCommand((int) PkgCmdIdList.ConnectionStringsListId,
-				this, () => new Func<string[]>(GetConnectionsStringList));
+				service, () => new Func<string[]>(service.GetAliases));
 			yield return commandFactory.BindToOleMenuCommand((int) PkgCmdIdList.ConnectionStringsCombo,
-				this, () => new Func<string, string>(ConStringsGetterSetter));
+				service, () => new Func<string, string>(service.GetSetCurrentVariant));
 
 		}
 
@@ -97,20 +114,6 @@ namespace SergeyUskov.ConnectionStringCat
 		}
 
 		#endregion
-
-		private string[] GetConnectionsStringList()
-		{
-			return new[] {"Red", "Green", "Blue"};
-		}
-
-		private string ConStringsGetterSetter(string value)
-		{
-			if(value != null)
-				_curValue = value;
-			return _curValue;
-		}
-
-		private string _curValue = "Red";
 
 		/////////////////////////////////////////////////////////////////////////////
 		// Overridden Package Implementation

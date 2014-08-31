@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Autofac;
 using ConStringCat.Core;
+using ConStringCat.Core.VSInterop;
 
 namespace SergeyUskov.ConnectionStringCat
 {
@@ -22,6 +23,7 @@ namespace SergeyUskov.ConnectionStringCat
 		private static void RegisterTypes(ContainerBuilder builder)
 		{
 			builder.RegisterType<CommandBinderFactory>();
+			builder.RegisterType<VariantsSetServiceImpl>().As<VariantsSetService>();
 		}
 	}
 }

@@ -96,10 +96,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CommandBinderFactory.cs" />
-    <Compile Include="MenuCommandBinder.cs" />
-    <Compile Include="OleMenuCommandBinder.cs" />
-    <Compile Include="VSCommandBinder.cs" />
+    <Compile Include="VariantsSetServiceImpl.cs" />
+    <Compile Include="VariantsSetService.cs" />
+    <Compile Include="Model\ConnectionStringVariant.cs" />
+    <Compile Include="Model\ConnectionStringVariantsSet.cs" />
+    <Compile Include="VSInterop\CommandBinderFactory.cs" />
+    <Compile Include="VSInterop\MenuCommandBinder.cs" />
+    <Compile Include="VSInterop\OleMenuCommandBinder.cs" />
+    <Compile Include="VSInterop\VSCommandBinder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

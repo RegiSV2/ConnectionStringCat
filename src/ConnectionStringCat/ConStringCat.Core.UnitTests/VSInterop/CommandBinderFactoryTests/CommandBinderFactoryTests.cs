@@ -1,7 +1,8 @@
 ﻿using System;
+using ConStringCat.Core.VSInterop;
 using NUnit.Framework;
 
-namespace ConStringCat.Core.UnitTests.CommandBinderFactoryTests
+namespace ConStringCat.Core.UnitTests.VSInterop.CommandBinderFactoryTests
 {
 	public class CommandBinderFactoryTests
 	{

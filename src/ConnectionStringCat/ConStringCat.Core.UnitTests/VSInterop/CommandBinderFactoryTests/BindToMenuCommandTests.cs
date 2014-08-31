@@ -1,6 +1,6 @@
 using NUnit.Framework;
 
-namespace ConStringCat.Core.UnitTests.CommandBinderFactoryTests
+namespace ConStringCat.Core.UnitTests.VSInterop.CommandBinderFactoryTests
 {
 	[TestFixture]
 	public class BindToMenuCommandTests : CommandBinderFactoryTests

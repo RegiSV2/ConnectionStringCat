@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ConStringCat.Core.UnitTests.Utils;
+﻿using ConStringCat.Core.UnitTests.VSInterop.Utils;
+using ConStringCat.Core.VSInterop;
 using Moq;
 using NUnit.Framework;
 
-namespace ConStringCat.Core.UnitTests.CommandBinderFactoryTests
+namespace ConStringCat.Core.UnitTests.VSInterop.CommandBinderFactoryTests
 {
 	[TestFixture]
 	public class BindToOleMenuCommandTests : CommandBinderFactoryTests

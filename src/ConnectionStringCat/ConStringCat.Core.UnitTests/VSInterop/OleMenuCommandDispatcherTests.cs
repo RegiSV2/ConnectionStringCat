@@ -1,8 +1,9 @@
-using ConStringCat.Core.UnitTests.Utils;
+using ConStringCat.Core.UnitTests.VSInterop.Utils;
+using ConStringCat.Core.VSInterop;
 using Moq;
 using NUnit.Framework;
 
-namespace ConStringCat.Core.UnitTests
+namespace ConStringCat.Core.UnitTests.VSInterop
 {
 	[TestFixture]
 	public class OleMenuCommandBinderTests : CommandBinderTestsBase

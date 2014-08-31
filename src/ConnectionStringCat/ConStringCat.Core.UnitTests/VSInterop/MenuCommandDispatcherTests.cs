@@ -1,12 +1,8 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Reflection.Emit;
-using System.Text;
-using System.Threading.Tasks;
+﻿using ConStringCat.Core.UnitTests.VSInterop.Utils;
+using ConStringCat.Core.VSInterop;
 using NUnit.Framework;
 
-namespace ConStringCat.Core.UnitTests
+namespace ConStringCat.Core.UnitTests.VSInterop
 {
 	[TestFixture]
 	public class MenuCommandBinderTests : CommandBinderTestsBase

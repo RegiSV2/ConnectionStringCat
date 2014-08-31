@@ -1,4 +1,4 @@
-﻿namespace ConStringCat.Core.UnitTests
+﻿namespace ConStringCat.Core.UnitTests.VSInterop.Utils
 {
 	public interface ITestBinderCallback
 	{
