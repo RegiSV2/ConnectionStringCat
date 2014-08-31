@@ -1,14 +1,15 @@
 ﻿using System;
 using System.ComponentModel.Design;
+using System.Diagnostics.Contracts;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using Microsoft.VisualStudio.Shell;
 
 namespace ConStringCat.Core
 {
-	public class OleMenuCommandDispatcher : VSCommandDispatcher
+	public class OleMenuCommandBinder : VSCommandBinder
 	{
-		private static readonly object[] CallbackEmptyArgs = new object[0];
+		private readonly object[] _callbackEmptyArgs;
 
 		private static readonly IntPtr MinusOneIntPtr = new IntPtr(-1);
 
@@ -18,10 +19,15 @@ namespace ConStringCat.Core
 
 		public MenuCommand NativeCommand { get; private set; }
 
-		public OleMenuCommandDispatcher(CommandID commandId, object callbackTarget, MethodInfo callback)
+		public OleMenuCommandBinder(CommandID commandId, object callbackTarget, MethodInfo callback)
 		{
+			Contract.Requires(commandId != null);
+			Contract.Requires(callbackTarget != null);
+			Contract.Requires(callback != null);
+
 			_callbackTarget = callbackTarget;
 			_callback = callback;
+			_callbackEmptyArgs = new object[callback.GetParameters().Length];
 			NativeCommand = new OleMenuCommand(InvokeHandler, commandId);
 		}
 
@@ -44,12 +50,11 @@ namespace ConStringCat.Core
 				&& oleEventArgs.OutValue != MinusOneIntPtr;
 		}
 
-		private static object[] GetArguments(OleMenuCmdEventArgs oleEventArgs)
+		private object[] GetArguments(OleMenuCmdEventArgs oleEventArgs)
 		{
-			var arguments = oleEventArgs.InValue == null
-				? CallbackEmptyArgs
+			return oleEventArgs.InValue == null
+				? _callbackEmptyArgs
 				: new[] {oleEventArgs.InValue};
-			return arguments;
 		}
 	}
 }

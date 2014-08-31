@@ -9,15 +9,15 @@ using NUnit.Framework;
 namespace ConStringCat.Core.UnitTests
 {
 	[TestFixture]
-	public class MenuCommandDispatcherTests : CommandDispatcherTestsBase
+	public class MenuCommandBinderTests : CommandBinderTestsBase
 	{
 		[Test]
 		public void NativeCommand_ShouldReturnAMenuCommandObject()
 		{
 			//Arrange
-			var commandDispatcher = new MenuCommandDispatcher(CommandId, () => { });
+			var commandBinder = new MenuCommandBinder(CommandId, () => { });
 			//Assert
-			Assert.That(commandDispatcher.NativeCommand, Is.Not.Null);
+			Assert.That(commandBinder.NativeCommand, Is.Not.Null);
 		}
 
 		[Test]
@@ -25,9 +25,9 @@ namespace ConStringCat.Core.UnitTests
 		{
 			//Arrange
 			var callbackIsCalled = false;
-			var commandDispatcher = new MenuCommandDispatcher(CommandId, () => { callbackIsCalled = true; });
+			var commandBinder = new MenuCommandBinder(CommandId, () => { callbackIsCalled = true; });
 			//Act
-			commandDispatcher.NativeCommand.Invoke();
+			commandBinder.NativeCommand.Invoke();
 			//Assert
 			Assert.That(callbackIsCalled);
 		}

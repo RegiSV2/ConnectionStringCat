@@ -1,8 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.Diagnostics;
 using System.Globalization;
 using System.Runtime.InteropServices;
+using Autofac;
+using ConStringCat.Core;
+using EnvDTE;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.PlatformUI;
 using Microsoft.VisualStudio.Shell;
@@ -40,6 +44,7 @@ namespace SergeyUskov.ConnectionStringCat
 		public ConnectionStringCatPackage()
 		{
 			Debug.WriteLine(string.Format(CultureInfo.CurrentCulture, "Entering constructor for: {0}", ToString()));
+			IoC.Init();
 		}
 
 		#region Package Members
@@ -53,61 +58,56 @@ namespace SergeyUskov.ConnectionStringCat
 			Debug.WriteLine(string.Format(CultureInfo.CurrentCulture, "Entering Initialize() of: {0}", ToString()));
 			base.Initialize();
 
-			// Add our command handlers for menu (commands must exist in the .vsct file)
-			var mcs = GetService(typeof (IMenuCommandService)) as OleMenuCommandService;
+			BindCommands();
+		}
+
+		private void BindCommands()
+		{
+			var mcs = GetOleMenuCommandService();
 			if (null == mcs) return;
 
-			mcs.AddCommand(CreateButtonCommand());
-			mcs.AddCommand(CreateFillComboCommand());
-			mcs.AddCommand(CreateGetterSetterConnectionStringCommand());
+			foreach (var commandBinder in CreateCommandBindings(GetCommandFactory()))
+			{
+				mcs.AddCommand(commandBinder.NativeCommand);
+			}
+		}
+
+		private IEnumerable<VSCommandBinder> CreateCommandBindings(CommandBinderFactory commandFactory)
+		{
+
+			yield return commandFactory.BindToMenuCommand((int) PkgCmdIdList.SetupConStringsCmdId, MenuItemCallback);
+			yield return commandFactory.BindToOleMenuCommand((int) PkgCmdIdList.ConnectionStringsListId,
+				this, () => new Func<string[]>(GetConnectionsStringList));
+			yield return commandFactory.BindToOleMenuCommand((int) PkgCmdIdList.ConnectionStringsCombo,
+				this, () => new Func<string, string>(ConStringsGetterSetter));
+
+		}
+
+		private OleMenuCommandService GetOleMenuCommandService()
+		{
+			var mcs = GetService(typeof (IMenuCommandService)) as OleMenuCommandService;
+			return mcs;
+		}
+
+		private static CommandBinderFactory GetCommandFactory()
+		{
+			var commandFactory = IoC.Container.Resolve<CommandBinderFactory>();
+			commandFactory.SetCommandsGuid(GuidList.guidConnectionStringCatCmdSet);
+			return commandFactory;
 		}
 
 		#endregion
 
-		private MenuCommand CreateButtonCommand()
+		private string[] GetConnectionsStringList()
 		{
-			var menuCommandId = new CommandID(GuidList.guidConnectionStringCatCmdSet,
-				(int)PkgCmdIdList.SetupConStringsCmdId);
-			return new MenuCommand(MenuItemCallback, menuCommandId);
+			return new[] {"Red", "Green", "Blue"};
 		}
 
-		private MenuCommand CreateFillComboCommand()
+		private string ConStringsGetterSetter(string value)
 		{
-			var menuCommandId = new CommandID(GuidList.guidConnectionStringCatCmdSet,
-				(int)PkgCmdIdList.ConnectionStringsListId);
-			return new OleMenuCommand(GetConnectionsStringList, menuCommandId);
-		}
-
-		private MenuCommand CreateGetterSetterConnectionStringCommand()
-		{
-			var menuCommandId = new CommandID(GuidList.guidConnectionStringCatCmdSet,
-				(int)PkgCmdIdList.ConnectionStringsCombo);
-
-			return new OleMenuCommand(ConStringsGetterSetter, menuCommandId);
-		}
-
-		private void GetConnectionsStringList(object sender, EventArgs eventArgs)
-		{
-			var oOleMenuCmdEventArgs = (OleMenuCmdEventArgs)eventArgs;
-
-			if (oOleMenuCmdEventArgs.OutValue != IntPtr.Zero)
-			{
-				Marshal.GetNativeVariantForObject(new string[] { "Red", "Green", "Blue" }, oOleMenuCmdEventArgs.OutValue);
-			}
-		}
-
-		private void ConStringsGetterSetter(object sender, EventArgs e)
-		{
-			var oOleMenuCmdEventArgs = (OleMenuCmdEventArgs)e;
-
-			if (oOleMenuCmdEventArgs.OutValue != IntPtr.Zero)
-			{
-				Marshal.GetNativeVariantForObject(_curValue, oOleMenuCmdEventArgs.OutValue);
-			}
-			else if (oOleMenuCmdEventArgs.InValue != null)
-			{
-				_curValue = Convert.ToString(oOleMenuCmdEventArgs.InValue);
-			}
+			if(value != null)
+				_curValue = value;
+			return _curValue;
 		}
 
 		private string _curValue = "Red";
@@ -120,7 +120,7 @@ namespace SergeyUskov.ConnectionStringCat
 		///     See the Initialize method to see how the menu item is associated to this function using
 		///     the OleMenuCommandService service and the MenuCommand class.
 		/// </summary>
-		private void MenuItemCallback(object sender, EventArgs e)
+		private void MenuItemCallback()
 		{
 			// Show a Message Box to prove we were here
 			var uiShell = (IVsUIShell) GetService(typeof (SVsUIShell));

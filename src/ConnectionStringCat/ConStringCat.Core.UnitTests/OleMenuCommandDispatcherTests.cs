@@ -1,40 +1,37 @@
-using System.Runtime.InteropServices;
-using Microsoft.VisualStudio.Shell;
+using ConStringCat.Core.UnitTests.Utils;
 using Moq;
 using NUnit.Framework;
 
 namespace ConStringCat.Core.UnitTests
 {
 	[TestFixture]
-	public class OleMenuCommandDispatcherTests : CommandDispatcherTestsBase
+	public class OleMenuCommandBinderTests : CommandBinderTestsBase
 	{
+		private Mock<ITestBinderCallback> _callback;
+
+		private OleMenuCommandBinder _commandBinder;
+
+		[SetUp]
+		public void InitializeContext()
+		{
+			_callback = TestBinderCallback.CreateMock();
+			_commandBinder = new OleMenuCommandBinder(CommandId,
+				_callback.Object, TestBinderCallback.CallbackMethod());
+		}
+
 		[Test]
 		public void NativeCommand_ShouldReturnAnOleMenuCommandObject()
 		{
-			//Arrange
-			var callback = new Mock<ITestDispatcherCallback>();
-			var methodInfo = callback.Object.GetType()
-				.GetMethod("ExecuteSomeOperation");
-			var commandDispatcher = new OleMenuCommandDispatcher(CommandId,
-				callback.Object, methodInfo);
-			//Assert
-			Assert.That(commandDispatcher.NativeCommand, Is.Not.Null);
+			Assert.That(_commandBinder.NativeCommand, Is.Not.Null);
 		}
 
 		[Test]
 		public void CallbackShouldBeCalled_WhenNativeCommandInvokes()
 		{
-			//Arrange
-			var callback = new Mock<ITestDispatcherCallback>();
-			callback.Setup(x => x.ExecuteSomeOperation(It.IsAny<string>()))
-				.Callback(() => callback.SetupGet(x => x.IsExecuted).Returns(true));
-			var methodInfo = callback.Object.GetType()
-				.GetMethod("ExecuteSomeOperation");
-			var commandDispatcher = new OleMenuCommandDispatcher(CommandId,
-				callback.Object, methodInfo);
 			//Act
-			commandDispatcher.NativeCommand.Invoke("someStr");
-			Assert.That(callback.Object.IsExecuted);
+			_commandBinder.NativeCommand.Invoke(TestBinderCallback.ConfiguredOpeartionArgument);
+			//Assert
+			Assert.That(_callback.Object.IsExecuted);
 		}
 	}
 }

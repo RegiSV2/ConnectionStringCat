@@ -3,8 +3,8 @@ using System.ComponentModel.Design;
 
 namespace ConStringCat.Core.UnitTests
 {
-	public class CommandDispatcherTestsBase
+	public class CommandBinderTestsBase
 	{
-		protected CommandID CommandId = new CommandID(Guid.NewGuid(), new Random().Next());
+		protected readonly CommandID CommandId = new CommandID(Guid.NewGuid(), new Random().Next());
 	}
 }

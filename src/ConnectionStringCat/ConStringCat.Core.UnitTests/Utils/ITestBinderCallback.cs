@@ -1,6 +1,6 @@
 ﻿namespace ConStringCat.Core.UnitTests
 {
-	public interface ITestDispatcherCallback
+	public interface ITestBinderCallback
 	{
 		string ExecuteSomeOperation(string argument);
 
