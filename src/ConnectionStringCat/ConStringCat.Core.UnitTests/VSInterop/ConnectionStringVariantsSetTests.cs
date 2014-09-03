@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using ConStringCat.Core.Model;
 using ConStringCat.Core.UnitTests.Utils;
 using NUnit.Framework;
 
-namespace ConStringCat.Core.UnitTests
+namespace ConStringCat.Core.UnitTests.VSInterop
 {
 	[TestFixture]
 	public class ConnectionStringVariantsSetTests

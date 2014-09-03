@@ -14,7 +14,7 @@ using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VsSDK.UnitTestLibrary;
 
-namespace ConnectionStringCat_UnitTests
+namespace ConnectionStringCat_UnitTests.MenuItemTests
 {
 	static class UIShellServiceMock
 	{

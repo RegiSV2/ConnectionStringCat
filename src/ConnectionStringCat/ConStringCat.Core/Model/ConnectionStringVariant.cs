@@ -27,6 +27,8 @@ namespace ConStringCat.Core.Model
 
 		public ConnectionStringVariant(string alias, string connectionString)
 		{
+			Contract.Requires(!string.IsNullOrEmpty(alias));
+			Contract.Requires(connectionString != null);
 			Alias = alias;
 			ConnectionString = connectionString;
 		}

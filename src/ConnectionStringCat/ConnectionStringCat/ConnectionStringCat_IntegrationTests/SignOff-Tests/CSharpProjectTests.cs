@@ -1,11 +1,7 @@
-﻿using System;
-using System.Text;
-using System.Collections.Generic;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Microsoft.VsSDK.IntegrationTestLibrary;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.VSSDK.Tools.VsIdeTesting;
 
-namespace ConnectionStringCat_IntegrationTests.IntegrationTests
+namespace ConnectionStringCat_IntegrationTests
 {
 	[TestClass]
 	public class CSharpProjectTests

@@ -46,7 +46,6 @@ namespace SergeyUskov.ConnectionStringCat
 		public ConnectionStringCatPackage()
 		{
 			Debug.WriteLine(string.Format(CultureInfo.CurrentCulture, "Entering constructor for: {0}", ToString()));
-			IoC.Init();
 		}
 
 		#region Package Members
@@ -60,6 +59,7 @@ namespace SergeyUskov.ConnectionStringCat
 			Debug.WriteLine(string.Format(CultureInfo.CurrentCulture, "Entering Initialize() of: {0}", ToString()));
 			base.Initialize();
 
+			IoC.Init(GetService);
 			var variantsService = InitVariantSets();
 			var bindings = CreateCommandBindings(variantsService);
 			BindCommands(bindings);
@@ -79,7 +79,7 @@ namespace SergeyUskov.ConnectionStringCat
 
 		private void BindCommands(IEnumerable<VSCommandBinder> commandBinders)
 		{
-			var mcs = GetOleMenuCommandService();
+			var mcs = GetService(typeof(IMenuCommandService)) as OleMenuCommandService;
 			if (null == mcs) return;
 
 			foreach (var commandBinder in commandBinders)
@@ -92,18 +92,13 @@ namespace SergeyUskov.ConnectionStringCat
 		{
 			var commandFactory = GetCommandFactory();
 
-			yield return commandFactory.BindToMenuCommand((int) PkgCmdIdList.SetupConStringsCmdId, MenuItemCallback);
+			yield return commandFactory.BindToOleMenuCommand((int)PkgCmdIdList.SetupConStringsCmdId, 
+				this, () => new Action(MenuItemCallback));
 			yield return commandFactory.BindToOleMenuCommand((int) PkgCmdIdList.ConnectionStringsListId,
 				service, () => new Func<string[]>(service.GetAliases));
 			yield return commandFactory.BindToOleMenuCommand((int) PkgCmdIdList.ConnectionStringsCombo,
 				service, () => new Func<string, string>(service.GetSetCurrentVariant));
 
-		}
-
-		private OleMenuCommandService GetOleMenuCommandService()
-		{
-			var mcs = GetService(typeof (IMenuCommandService)) as OleMenuCommandService;
-			return mcs;
 		}
 
 		private static CommandBinderFactory GetCommandFactory()

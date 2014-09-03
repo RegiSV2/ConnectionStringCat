@@ -13,15 +13,6 @@ namespace ConStringCat.Core.VSInterop
 
 		private bool _isInitialized;
 
-		public VSCommandBinder BindToMenuCommand(int commandId, Action callback)
-		{
-			Contract.Requires(callback != null);
-			Contract.Requires(commandId != default(int));
-			Contract.Assert(_isInitialized, FactoryInitializedMsg);
-
-			return new MenuCommandBinder(new CommandID(_commandsGuid, commandId), callback);
-		}
-
 		public VSCommandBinder BindToOleMenuCommand(int commandId, object callbackTarget,
 			Expression<Func<Delegate>> callback)
 		{
