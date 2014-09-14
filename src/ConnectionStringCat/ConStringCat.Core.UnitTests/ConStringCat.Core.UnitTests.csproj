@@ -65,7 +65,7 @@
     <Compile Include="VSInterop\CommandBinderFactoryTests\CommandBinderFactoryTests.cs" />
     <Compile Include="VSInterop\CommandBinderFactoryTests\SetCommandsGuidTests.cs" />
     <Compile Include="VSInterop\Utils\CommandDispatcherTestsBase.cs" />
-    <Compile Include="VSInterop\OleMenuCommandDispatcherTests.cs" />
+    <Compile Include="VSInterop\OleMenuCommandBinderTests.cs" />
     <Compile Include="VSInterop\Utils\ITestBinderCallback.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="VSInterop\Utils\TestBinderCallback.cs" />

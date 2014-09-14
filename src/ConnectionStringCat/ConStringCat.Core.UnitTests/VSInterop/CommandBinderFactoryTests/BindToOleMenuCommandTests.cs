@@ -10,11 +10,17 @@ namespace ConStringCat.Core.UnitTests.VSInterop.CommandBinderFactoryTests
 	{
 		private Mock<ITestBinderCallback> _binderCallback;
 
-		private VSCommandBinder InstantiateBinderFromFactory()
+		private VSCommandBinder InstantiateBinderWithInstanceCallback()
 		{
 			return Factory
-				.BindToOleMenuCommand(TestCommandId, _binderCallback.Object,
-					TestBinderCallback.CallbackMethod(_binderCallback.Object));
+				.BindToOleMenuCommand(TestCommandId, 
+				TestBinderCallback.CallbackMethod(_binderCallback.Object));
+		}
+
+		private VSCommandBinder InstantiateBinderWithStaticCallback()
+		{
+			return Factory
+				.BindToOleMenuCommand(TestCommandId, TestBinderCallback.StaticCallbackMethod());
 		}
 
 		[SetUp]
@@ -27,23 +33,29 @@ namespace ConStringCat.Core.UnitTests.VSInterop.CommandBinderFactoryTests
 		[Test]
 		public void BindToOleMenuCommand_CorrectArguments_ShouldReturnNewBinder()
 		{
-			Assert.That(InstantiateBinderFromFactory(), Is.Not.Null);
+			Assert.That(InstantiateBinderWithInstanceCallback(), Is.Not.Null);
 		}
 
 		[Test]
 		public void BindToOleMenuCommand_CorrectArgument_BindersNativeCommandShouldBeAnOleCommand()
 		{
-			Assert.That(InstantiateBinderFromFactory(), Is.AssignableTo<OleMenuCommandBinder>());
+			Assert.That(InstantiateBinderWithInstanceCallback(), Is.AssignableTo<OleMenuCommandBinder>());
 		}
 
 		[Test]
 		public void BindToOleMenuCommand_CorrectArgument_BindersNativeCommandShouldExecuteCallback()
 		{
 			//Act
-			var binder = InstantiateBinderFromFactory();
+			var binder = InstantiateBinderWithInstanceCallback();
 			binder.NativeCommand.Invoke(TestBinderCallback.ConfiguredOpeartionArgument);
 			//Assert
 			Assert.That(_binderCallback.Object.IsExecuted);
+		}
+
+		[Test]
+		public void BindToOleMenuCommand_StaticCallback_ShouldReturnNewBinder()
+		{
+			Assert.That(InstantiateBinderWithStaticCallback(), Is.Not.Null);
 		}
 
 		[Test]
@@ -51,24 +63,15 @@ namespace ConStringCat.Core.UnitTests.VSInterop.CommandBinderFactoryTests
 		{
 			var callbackTarget = TestBinderCallback.CreateMock().Object;
 			Assert.That(() => Factory.BindToOleMenuCommand(
-				0, callbackTarget, TestBinderCallback.CallbackMethod(callbackTarget)),
-				Throws.Exception);
-		}
-
-		[Test]
-		public void BindToOleMenuCommand_NullCallbackTarget_ShouldThrowException()
-		{
-			var callbackTarget = TestBinderCallback.CreateMock().Object;
-			Assert.That(() => Factory.BindToOleMenuCommand(
-				0, null, TestBinderCallback.CallbackMethod(callbackTarget)),
+				0, TestBinderCallback.CallbackMethod(callbackTarget)),
 				Throws.Exception);
 		}
 
 		[Test]
 		public void BindToOleMenuCommand_NullCallback_ShouldThrowException()
 		{
-			Assert.That(() => Factory.BindToOleMenuCommand(
-				TestCommandId, TestBinderCallback.CreateMock().Object, null), Throws.Exception);
+			Assert.That(() => Factory.BindToOleMenuCommand(TestCommandId, null),
+				Throws.Exception);
 		}
 	}
 }

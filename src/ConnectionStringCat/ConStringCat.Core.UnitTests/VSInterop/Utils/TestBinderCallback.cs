@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Linq.Expressions;
 using System.Reflection;
 using Moq;
@@ -26,6 +27,16 @@ namespace ConStringCat.Core.UnitTests.VSInterop.Utils
 		public static MethodInfo CallbackMethod()
 		{
 			return typeof (ITestBinderCallback).GetMethod("ExecuteSomeOperation");
+		}
+
+		public static Expression<Func<Delegate>> StaticCallbackMethod()
+		{
+			return () => new Action<string>(StaticCallback);
+		}
+
+		private static void StaticCallback(string argument)
+		{
+			Debug.WriteLine("In test static callback method, argument:" + argument);
 		}
 	}
 }

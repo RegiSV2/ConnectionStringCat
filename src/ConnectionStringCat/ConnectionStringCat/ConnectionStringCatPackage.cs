@@ -5,12 +5,9 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Runtime.InteropServices;
 using Autofac;
-using ConStringCat.Core;
 using ConStringCat.Core.Model;
 using ConStringCat.Core.VSInterop;
-using EnvDTE;
 using Microsoft.VisualStudio;
-using Microsoft.VisualStudio.PlatformUI;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 
@@ -92,13 +89,12 @@ namespace SergeyUskov.ConnectionStringCat
 		{
 			var commandFactory = GetCommandFactory();
 
-			yield return commandFactory.BindToOleMenuCommand((int)PkgCmdIdList.SetupConStringsCmdId, 
-				this, () => new Action(MenuItemCallback));
+			yield return commandFactory.BindToOleMenuCommand((int) PkgCmdIdList.SetupConStringsCmdId, 
+				() => new Action(MenuItemCallback));
 			yield return commandFactory.BindToOleMenuCommand((int) PkgCmdIdList.ConnectionStringsListId,
-				service, () => new Func<string[]>(service.GetAliases));
+				() => new Func<string[]>(service.GetAliases));
 			yield return commandFactory.BindToOleMenuCommand((int) PkgCmdIdList.ConnectionStringsCombo,
-				service, () => new Func<string, string>(service.GetSetCurrentVariant));
-
+				() => new Func<string, string>(service.GetSetCurrentVariant));
 		}
 
 		private static CommandBinderFactory GetCommandFactory()

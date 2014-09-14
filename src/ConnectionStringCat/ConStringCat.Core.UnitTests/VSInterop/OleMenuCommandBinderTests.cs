@@ -16,7 +16,7 @@ namespace ConStringCat.Core.UnitTests.VSInterop
 		public void InitializeContext()
 		{
 			_callback = TestBinderCallback.CreateMock();
-			_commandBinder = new OleMenuCommandBinder(CommandId,
+			_commandBinder = OleMenuCommandBinder.BindToInstanceCallback(CommandId,
 				_callback.Object, TestBinderCallback.CallbackMethod());
 		}
 

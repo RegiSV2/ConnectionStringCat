@@ -12,7 +12,7 @@ namespace ConStringCat.Core.UnitTests.VSInterop.CommandBinderFactoryTests
 		{
 			var callback = TestBinderCallback.CreateMock().Object;
 			return Factory.BindToOleMenuCommand(TestCommandId,
-				callback, TestBinderCallback.CallbackMethod(callback));
+				TestBinderCallback.CallbackMethod(callback));
 		}
 
 		[Test]

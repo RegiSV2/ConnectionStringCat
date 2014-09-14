@@ -24,9 +24,9 @@ namespace ConStringCat.Core.VSInterop
 
 		public string[] GetAliases()
 		{
-			if (!_solutionInteropObject.Solution.IsOpen)
-				return new string[0];
-			return _workingSet.Aliases.ToArray();
+			return !_solutionInteropObject.Solution.IsOpen
+				? new string[0]
+				: _workingSet.Aliases.ToArray();
 		}
 
 		public string GetSetCurrentVariant(string selectedAlias)
