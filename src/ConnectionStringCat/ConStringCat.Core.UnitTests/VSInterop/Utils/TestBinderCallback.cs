@@ -31,11 +31,18 @@ namespace ConStringCat.Core.UnitTests.VSInterop.Utils
 
 		public static Expression<Func<Delegate>> StaticCallbackMethod()
 		{
-			return () => new Action<string>(StaticCallback);
+			return () => new Action<StaticCallbackArgument>(StaticCallback);
 		}
 
-		private static void StaticCallback(string argument)
+		public static MethodInfo StaticCallbackMethodInfo()
 		{
+			return typeof (TestBinderCallback).GetMethod("StaticCallback", 
+				BindingFlags.NonPublic | BindingFlags.Static);
+		}
+
+		private static void StaticCallback(StaticCallbackArgument argument)
+		{
+			argument.IsCallbackCalled = true;
 			Debug.WriteLine("In test static callback method, argument:" + argument);
 		}
 	}
