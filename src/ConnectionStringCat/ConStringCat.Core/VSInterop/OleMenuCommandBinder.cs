@@ -15,6 +15,14 @@ namespace ConStringCat.Core.VSInterop
 		private readonly object[] _callbackEmptyArgs;
 		private readonly object _callbackTarget;
 
+		private OleMenuCommandBinder(CommandID commandId, object callbackTarget, MethodInfo callback)
+		{
+			_callbackTarget = callbackTarget;
+			_callback = callback;
+			_callbackEmptyArgs = new object[callback.GetParameters().Length];
+			NativeCommand = new OleMenuCommand(InvokeHandler, commandId);
+		}
+
 		public MenuCommand NativeCommand { get; private set; }
 
 		public static OleMenuCommandBinder BindToStaticCallback(CommandID commandId, MethodInfo staticCallback)
@@ -35,19 +43,11 @@ namespace ConStringCat.Core.VSInterop
 			return new OleMenuCommandBinder(commandId, target, callback);
 		}
 
-		private OleMenuCommandBinder(CommandID commandId, object callbackTarget, MethodInfo callback)
-		{
-			_callbackTarget = callbackTarget;
-			_callback = callback;
-			_callbackEmptyArgs = new object[callback.GetParameters().Length];
-			NativeCommand = new OleMenuCommand(InvokeHandler, commandId);
-		}
-
 		private void InvokeHandler(object sender, EventArgs eventArgs)
 		{
 			var oleEventArgs = (OleMenuCmdEventArgs) eventArgs;
-			object[] arguments = GetArguments(oleEventArgs);
-			object result = _callback.Invoke(_callbackTarget, arguments);
+			var arguments = GetArguments(oleEventArgs);
+			var result = _callback.Invoke(_callbackTarget, arguments);
 
 			if (ShouldProvideResult(oleEventArgs))
 			{

@@ -1,5 +1,4 @@
-﻿using System;
-using System.ComponentModel.Design;
+﻿using System.ComponentModel.Design;
 using System.Diagnostics.Contracts;
 
 namespace ConStringCat.Core.VSInterop
@@ -14,8 +13,6 @@ namespace ConStringCat.Core.VSInterop
 		///     Returns a native command, assotiated to this binder
 		/// </summary>
 		MenuCommand NativeCommand { get; }
-
-
 	}
 
 	[ContractClassFor(typeof (VSCommandBinder))]

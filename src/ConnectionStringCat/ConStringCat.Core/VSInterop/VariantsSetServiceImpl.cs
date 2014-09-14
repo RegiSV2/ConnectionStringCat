@@ -7,9 +7,8 @@ namespace ConStringCat.Core.VSInterop
 {
 	public class VariantsSetServiceImpl : VariantsSetService
 	{
-		private ConnectionStringVariantsSet _workingSet;
-
 		private readonly DTE _solutionInteropObject;
+		private ConnectionStringVariantsSet _workingSet;
 
 		public VariantsSetServiceImpl(DTE solutionInteropObject)
 		{
@@ -33,7 +32,7 @@ namespace ConStringCat.Core.VSInterop
 		{
 			if (!_solutionInteropObject.Solution.IsOpen)
 				return null;
-			if(selectedAlias != null)
+			if (selectedAlias != null)
 				_workingSet.SetCurrentVariant(selectedAlias);
 			return _workingSet.CurrentVariant.Alias;
 		}

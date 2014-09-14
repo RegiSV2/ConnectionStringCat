@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics.Contracts;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Diagnostics.Contracts;
 
 namespace ConStringCat.Core.Model
 {
@@ -21,10 +16,6 @@ namespace ConStringCat.Core.Model
 
 		#endregion
 
-		public string Alias { get; private set; }
-
-		public string ConnectionString { get; private set; }
-
 		public ConnectionStringVariant(string alias, string connectionString)
 		{
 			Contract.Requires(!string.IsNullOrEmpty(alias));
@@ -32,6 +23,10 @@ namespace ConStringCat.Core.Model
 			Alias = alias;
 			ConnectionString = connectionString;
 		}
+
+		public string Alias { get; private set; }
+
+		public string ConnectionString { get; private set; }
 
 		[ContractInvariantMethod]
 		private void Invariant()

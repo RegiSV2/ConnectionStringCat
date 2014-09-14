@@ -3,18 +3,13 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics.Contracts;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ConStringCat.Core.Model
 {
 	public sealed class ConnectionStringVariantsSet
 	{
-		private readonly IList<ConnectionStringVariant> _variants;
-
 		private readonly IReadOnlyList<ConnectionStringVariant> _readOnlyVariantsVersion;
-
-		public event EventHandler VariantChangedEvent;
+		private readonly IList<ConnectionStringVariant> _variants;
 
 		public string VariantsSetName { get; private set; }
 
@@ -37,18 +32,12 @@ namespace ConStringCat.Core.Model
 
 		public IReadOnlyList<ConnectionStringVariant> Variants
 		{
-			get
-			{
-				return _readOnlyVariantsVersion;
-			}
+			get { return _readOnlyVariantsVersion; }
 		}
 
 		public IList<string> Aliases
 		{
-			get
-			{
-				return _variants.Select(x => x.Alias).ToList();
-			}
+			get { return _variants.Select(x => x.Alias).ToList(); }
 		}
 
 		public void AddVariant(ConnectionStringVariant newVariant)
@@ -63,11 +52,13 @@ namespace ConStringCat.Core.Model
 		{
 			var oldVariant = CurrentVariant;
 			CurrentVariant = Variants.First(x => x.Alias == variantAlias);
-			if(oldVariant != CurrentVariant)
+			if (oldVariant != CurrentVariant)
 				OnVariantChangedEvent();
 		}
 
 		#endregion
+
+		public event EventHandler VariantChangedEvent;
 
 		private void OnVariantChangedEvent()
 		{

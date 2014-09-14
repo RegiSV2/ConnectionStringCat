@@ -30,8 +30,7 @@ namespace ConStringCat.Core.VSInterop
 
 			if (callbackTarget == null)
 				return OleMenuCommandBinder.BindToStaticCallback(id, callbackMethod);
-			else
-				return OleMenuCommandBinder.BindToInstanceCallback(id, callbackTarget, callbackMethod);
+			return OleMenuCommandBinder.BindToInstanceCallback(id, callbackTarget, callbackMethod);
 		}
 
 		private static MethodInfo GetMethodInfoFromExpression(MethodCallExpression callback)
@@ -51,7 +50,6 @@ namespace ConStringCat.Core.VSInterop
 		private static object GetTargetFromExpression(Expression<Func<Delegate>> callback,
 			MethodCallExpression methodCallExpression)
 		{
-
 			var lambda = Expression.Lambda(methodCallExpression.Arguments.Last(),
 				callback.Parameters);
 			return lambda.Compile().DynamicInvoke(new object[0]);
