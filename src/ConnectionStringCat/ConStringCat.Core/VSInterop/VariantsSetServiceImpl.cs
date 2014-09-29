@@ -9,6 +9,7 @@ namespace ConStringCat.Core.VSInterop
 	{
 		private readonly DTE _solutionInteropObject;
 		private ConnectionStringVariantsSet _workingSet;
+		private readonly string[] _emptyAliasesArray = new string[0];
 
 		public VariantsSetServiceImpl(DTE solutionInteropObject)
 		{
@@ -24,7 +25,7 @@ namespace ConStringCat.Core.VSInterop
 		public string[] GetAliases()
 		{
 			return !_solutionInteropObject.Solution.IsOpen
-				? new string[0]
+				? _emptyAliasesArray
 				: _workingSet.Aliases.ToArray();
 		}
 

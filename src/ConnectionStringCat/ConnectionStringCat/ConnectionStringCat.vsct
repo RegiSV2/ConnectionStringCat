@@ -63,7 +63,7 @@
 		<Buttons>
 			<!--To define a menu group you have to specify its ID, the parent menu and its display priority. 
 					The command is visible and enabled by default. If you need to change the visibility, status, etc, you can use
-					the CommandFlag node.
+				  	the CommandFlag node.
 					You can add more than one CommandFlag node e.g.:
 							<CommandFlag>DefaultInvisible</CommandFlag>
 							<CommandFlag>DynamicVisibility</CommandFlag>

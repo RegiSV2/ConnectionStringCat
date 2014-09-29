@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.Design;
+﻿using System;
+using System.ComponentModel.Design;
 using System.Diagnostics.Contracts;
 
 namespace ConStringCat.Core.VSInterop
@@ -13,6 +14,8 @@ namespace ConStringCat.Core.VSInterop
 		///     Returns a native command, assotiated to this binder
 		/// </summary>
 		MenuCommand NativeCommand { get; }
+
+		void SetCommandAvailabilityChecker(Func<bool> checker);
 	}
 
 	[ContractClassFor(typeof (VSCommandBinder))]
@@ -25,6 +28,11 @@ namespace ConStringCat.Core.VSInterop
 				Contract.Ensures(Contract.Result<MenuCommand>() != null);
 				return null;
 			}
+		}
+
+		public void SetCommandAvailabilityChecker(Func<bool> checker)
+		{
+			Contract.Requires(checker != null);
 		}
 	}
 }

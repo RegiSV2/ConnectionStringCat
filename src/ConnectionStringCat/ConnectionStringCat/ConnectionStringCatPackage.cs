@@ -7,6 +7,7 @@ using System.Runtime.InteropServices;
 using Autofac;
 using ConStringCat.Core.Model;
 using ConStringCat.Core.VSInterop;
+using EnvDTE;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
@@ -53,7 +54,6 @@ namespace SergeyUskov.ConnectionStringCat
 		/// </summary>
 		protected override void Initialize()
 		{
-			Debug.WriteLine(string.Format(CultureInfo.CurrentCulture, "Entering Initialize() of: {0}", ToString()));
 			base.Initialize();
 
 			IoC.Init(GetService);
@@ -91,10 +91,14 @@ namespace SergeyUskov.ConnectionStringCat
 
 			yield return commandFactory.BindToOleMenuCommand((int) PkgCmdIdList.SetupConStringsCmdId, 
 				() => new Action(MenuItemCallback));
-			yield return commandFactory.BindToOleMenuCommand((int) PkgCmdIdList.ConnectionStringsListId,
+			var comboBoxCommand = commandFactory.BindToOleMenuCommand((int) PkgCmdIdList.ConnectionStringsListId,
 				() => new Func<string[]>(service.GetAliases));
-			yield return commandFactory.BindToOleMenuCommand((int) PkgCmdIdList.ConnectionStringsCombo,
+			comboBoxCommand.SetCommandAvailabilityChecker(() => IoC.Container.Resolve<DTE>().Solution.IsOpen);
+			yield return comboBoxCommand;
+			var comboSetterCommand = commandFactory.BindToOleMenuCommand((int) PkgCmdIdList.ConnectionStringsCombo,
 				() => new Func<string, string>(service.GetSetCurrentVariant));
+			comboSetterCommand.SetCommandAvailabilityChecker(() => IoC.Container.Resolve<DTE>().Solution.IsOpen);
+			yield return comboSetterCommand;
 		}
 
 		private static CommandBinderFactory GetCommandFactory()

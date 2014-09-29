@@ -14,16 +14,23 @@ namespace ConStringCat.Core.VSInterop
 		private readonly MethodInfo _callback;
 		private readonly object[] _callbackEmptyArgs;
 		private readonly object _callbackTarget;
+		private Func<bool> _availabilityChecker; 
 
 		private OleMenuCommandBinder(CommandID commandId, object callbackTarget, MethodInfo callback)
 		{
 			_callbackTarget = callbackTarget;
 			_callback = callback;
 			_callbackEmptyArgs = new object[callback.GetParameters().Length];
-			NativeCommand = new OleMenuCommand(InvokeHandler, commandId);
+
+			NativeCommand = CreateNativeCommand(commandId);
 		}
 
 		public MenuCommand NativeCommand { get; private set; }
+
+		public void SetCommandAvailabilityChecker(Func<bool> checker)
+		{
+			_availabilityChecker = checker;
+		}
 
 		public static OleMenuCommandBinder BindToStaticCallback(CommandID commandId, MethodInfo staticCallback)
 		{
@@ -41,6 +48,13 @@ namespace ConStringCat.Core.VSInterop
 			Contract.Requires(callback != null);
 
 			return new OleMenuCommandBinder(commandId, target, callback);
+		}
+
+		private OleMenuCommand CreateNativeCommand(CommandID commandId)
+		{
+			var command = new OleMenuCommand(InvokeHandler, commandId);
+			command.BeforeQueryStatus += CommandOnBeforeQueryStatus;
+			return command;
 		}
 
 		private void InvokeHandler(object sender, EventArgs eventArgs)
@@ -66,6 +80,17 @@ namespace ConStringCat.Core.VSInterop
 			return oleEventArgs.InValue == null
 				? _callbackEmptyArgs
 				: new[] {oleEventArgs.InValue};
+		}
+
+		private void CommandOnBeforeQueryStatus(object sender, EventArgs eventArgs)
+		{
+			var senderCommand = (OleMenuCommand)sender;
+			Contract.Assert(senderCommand == NativeCommand);
+
+			if (_availabilityChecker != null)
+			{
+				senderCommand.Enabled = _availabilityChecker();
+			}
 		}
 	}
 }
