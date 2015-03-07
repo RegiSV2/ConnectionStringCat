@@ -7,7 +7,7 @@ using Microsoft.VisualStudio.Shell;
 
 namespace ConStringCat.Core.VSInterop
 {
-	public class OleMenuCommandBinder : VSCommandBinder
+	public sealed class OleMenuCommandBinder : VSCommandBinder
 	{
 		private static readonly IntPtr MinusOneIntPtr = new IntPtr(-1);
 

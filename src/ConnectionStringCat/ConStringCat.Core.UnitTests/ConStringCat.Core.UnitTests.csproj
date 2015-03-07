@@ -69,6 +69,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ValueUpdating\XmlFileConnectionStringUpdaterTests.cs" />
     <Compile Include="VSInterop\ConnectionStringVariantsSetTests.cs" />
     <Compile Include="Utils\VariantsCreator.cs" />
     <Compile Include="VSInterop\OleMenuCommandBinderTest\NativeCommandInstanceCallbackOleMenuCommandBinderTests.cs" />
@@ -93,6 +94,9 @@
       <Project>{24F95C37-6620-46AB-90A5-AFFA930E3D4F}</Project>
       <Name>ConStringCat.Core</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="TestXmlFile.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

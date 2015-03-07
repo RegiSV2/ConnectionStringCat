@@ -110,6 +110,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ValueUpdating\XmlFileConnectionStringUpdater.cs" />
+    <Compile Include="Model\ConnectionStringUpdater.cs" />
+    <Compile Include="Model\ConnectionStringUpdatingException.cs" />
     <Compile Include="VSInterop\VariantsSetServiceImpl.cs" />
     <Compile Include="VSInterop\VariantsSetService.cs" />
     <Compile Include="Model\ConnectionStringVariant.cs" />

@@ -82,7 +82,7 @@ namespace ConStringCat.Core.UnitTests.VSInterop
 		public void GetSetCurrentVariant_NullArgument_ShouldRetunrCurrentVariant()
 		{
 			//Arrange
-			var currentVariantAlias = LastRegisteredVariant().Alias;
+			var currentVariantAlias = LastRegisteredVariant().Name;
 			_variantsSet.SetCurrentVariant(currentVariantAlias);
 			//Assert
 			Assert.That(_service.GetSetCurrentVariant(null), Is.EqualTo(currentVariantAlias));
@@ -93,7 +93,7 @@ namespace ConStringCat.Core.UnitTests.VSInterop
 		{
 			//Arrange
 			var selectedVariant = LastRegisteredVariant();
-			_service.GetSetCurrentVariant(selectedVariant.Alias);
+			_service.GetSetCurrentVariant(selectedVariant.Name);
 			//Assert
 			Assert.That(_variantsSet.CurrentVariant, Is.EqualTo(selectedVariant));
 		}
@@ -102,7 +102,7 @@ namespace ConStringCat.Core.UnitTests.VSInterop
 		public void GetSetCurrentVariant_SolutionNotOpened_ShouldReturnNullVariant()
 		{
 			//Arrange
-			_service.GetSetCurrentVariant(LastRegisteredVariant().Alias);
+			_service.GetSetCurrentVariant(LastRegisteredVariant().Name);
 			_solution.Setup(x => x.IsOpen).Returns(false);
 			//Assert
 			Assert.That(_service.GetSetCurrentVariant(null), Is.EqualTo(null));

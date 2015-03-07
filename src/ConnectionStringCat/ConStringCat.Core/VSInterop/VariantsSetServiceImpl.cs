@@ -5,7 +5,7 @@ using EnvDTE;
 
 namespace ConStringCat.Core.VSInterop
 {
-	public class VariantsSetServiceImpl : VariantsSetService
+	public sealed class VariantsSetServiceImpl : VariantsSetService
 	{
 		private readonly DTE _solutionInteropObject;
 		private ConnectionStringVariantsSet _workingSet;
@@ -35,7 +35,7 @@ namespace ConStringCat.Core.VSInterop
 				return null;
 			if (selectedAlias != null)
 				_workingSet.SetCurrentVariant(selectedAlias);
-			return _workingSet.CurrentVariant.Alias;
+			return _workingSet.CurrentVariant.Name;
 		}
 	}
 }

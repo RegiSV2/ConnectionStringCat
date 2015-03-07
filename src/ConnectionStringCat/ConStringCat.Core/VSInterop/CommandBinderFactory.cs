@@ -8,7 +8,7 @@ using System.Reflection;
 
 namespace ConStringCat.Core.VSInterop
 {
-	public class CommandBinderFactory
+	public sealed class CommandBinderFactory
 	{
 		private const string FactoryInitializedMsg = "You must set commandsGuid before calling factory methods";
 

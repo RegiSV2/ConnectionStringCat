@@ -2,7 +2,7 @@
 
 namespace ConStringCat.Core.Model
 {
-	public class ConnectionStringVariant
+	public sealed class ConnectionStringVariant
 	{
 		#region Static Stuff
 
@@ -16,23 +16,23 @@ namespace ConStringCat.Core.Model
 
 		#endregion
 
-		public ConnectionStringVariant(string alias, string connectionString)
+		public ConnectionStringVariant(string name, string value)
 		{
-			Contract.Requires(!string.IsNullOrEmpty(alias));
-			Contract.Requires(connectionString != null);
-			Alias = alias;
-			ConnectionString = connectionString;
+			Contract.Requires(!string.IsNullOrEmpty(name));
+			Contract.Requires(value != null);
+			Name = name;
+			Value = value;
 		}
 
-		public string Alias { get; private set; }
+		public string Name { get; private set; }
 
-		public string ConnectionString { get; private set; }
+		public string Value { get; private set; }
 
 		[ContractInvariantMethod]
 		private void Invariant()
 		{
-			Contract.Invariant(!string.IsNullOrEmpty(Alias));
-			Contract.Invariant(ConnectionString != null);
+			Contract.Invariant(!string.IsNullOrEmpty(Name));
+			Contract.Invariant(Value != null);
 		}
 	}
 }
