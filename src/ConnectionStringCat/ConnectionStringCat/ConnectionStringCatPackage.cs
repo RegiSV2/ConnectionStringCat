@@ -59,23 +59,8 @@ namespace SergeyUskov.ConnectionStringCat
 			base.Initialize();
 
 			IoC.Init(GetService);
-			var variantsService = InitVariantSets();
-			var bindings = CreateCommandBindings(variantsService);
+			var bindings = CreateCommandBindings();
 			BindCommands(bindings);
-		}
-
-		private VariantsSetService InitVariantSets()
-		{
-			var variants = new ConnectionStringVariantsSetImpl("Database");
-			variants.AddVariant("First", "First string");
-			variants.AddVariant("Second", "Second string");
-			variants.AddVariant("Third", "Third string");
-			variants.SetCurrentVariant(variants.Variants.First().Key);
-			variants.AddUpdater(new XmlFileConnectionStringUpdater("H:\\testxml.xml", "/catalog/book[last()]/@id"));
-
-			var service = IoC.Container.Resolve<VariantsSetService>();
-			//service.SetVariantsSet(variants);
-			return service;
 		}
 
 		private void BindCommands(IEnumerable<VSCommandBinder> commandBinders)
@@ -89,19 +74,24 @@ namespace SergeyUskov.ConnectionStringCat
 			}
 		}
 
-		private IEnumerable<VSCommandBinder> CreateCommandBindings(VariantsSetService service)
+		private IEnumerable<VSCommandBinder> CreateCommandBindings()
 		{
+			var service = IoC.Container.Resolve<VariantsSetService>();
 			var commandFactory = GetCommandFactory();
 
 			yield return commandFactory.BindToOleMenuCommand((int) PkgCmdIdList.SetupConStringsCmdId, 
 				() => new Action(MenuItemCallback));
+
 			var comboBoxCommand = commandFactory.BindToOleMenuCommand((int) PkgCmdIdList.ConnectionStringsListId,
 				() => new Func<string[]>(service.GetAliases));
-			comboBoxCommand.SetCommandAvailabilityChecker(() => IoC.Container.Resolve<DTE>().Solution.IsOpen);
+			comboBoxCommand.SetCommandAvailabilityChecker(
+				() => service.IsServiceAvailable);
 			yield return comboBoxCommand;
+
 			var comboSetterCommand = commandFactory.BindToOleMenuCommand((int) PkgCmdIdList.ConnectionStringsCombo,
 				() => new Func<string, string>(service.GetSetCurrentVariant));
-			comboSetterCommand.SetCommandAvailabilityChecker(() => IoC.Container.Resolve<DTE>().Solution.IsOpen);
+			comboSetterCommand.SetCommandAvailabilityChecker(
+				() => service.IsServiceAvailable);
 			yield return comboSetterCommand;
 		}
 

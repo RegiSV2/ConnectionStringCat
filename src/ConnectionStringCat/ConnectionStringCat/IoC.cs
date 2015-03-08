@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Autofac;
 using ConStringCat.Core;
+using ConStringCat.Core.SettingsManagement;
 using ConStringCat.Core.VSInterop;
 using EnvDTE;
 using Microsoft.VisualStudio.Shell;
@@ -27,6 +28,7 @@ namespace SergeyUskov.ConnectionStringCat
 		{
 			builder.RegisterType<CommandBinderFactory>();
 			builder.Register(_ => getNativeService(typeof (DTE)) as DTE);
+			builder.RegisterType<VariantsSettingsLoaderImpl>().As<VariantsSettingsLoader>();
 			builder.RegisterType<VariantsSetServiceImpl>().As<VariantsSetService>();
 		}
 	}

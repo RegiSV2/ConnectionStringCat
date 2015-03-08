@@ -10,6 +10,15 @@ namespace ConStringCat.Core.Model
 	/// </summary>
 	public class NullConnectionStringVariantsSet : ConnectionStringVariantsSet
 	{
+		#region Singleton
+
+		private NullConnectionStringVariantsSet()
+		{ }
+
+		public static readonly NullConnectionStringVariantsSet Instance = new NullConnectionStringVariantsSet();
+
+		#endregion
+
 		private const string CannotSetCurrentVariantMsg = "Cannot select variant because ConnectionStringCat is inactive";
 
 		public string Name

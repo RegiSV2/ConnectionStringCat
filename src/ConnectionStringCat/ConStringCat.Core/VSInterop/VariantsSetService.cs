@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics.Contracts;
-using ConStringCat.Core.Model;
 
 namespace ConStringCat.Core.VSInterop
 {
@@ -9,6 +8,8 @@ namespace ConStringCat.Core.VSInterop
 		string[] GetAliases();
 
 		string GetSetCurrentVariant(string selectedAlias);
+
+		bool IsServiceAvailable { get; }
 	}
 
 	[ContractClassFor(typeof (VariantsSetService))]
@@ -23,6 +24,11 @@ namespace ConStringCat.Core.VSInterop
 		public string GetSetCurrentVariant(string selectedAlias)
 		{
 			return null;
+		}
+
+		public bool IsServiceAvailable
+		{
+			get { return false; }
 		}
 	}
 }

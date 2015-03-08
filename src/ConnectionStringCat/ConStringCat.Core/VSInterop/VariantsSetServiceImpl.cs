@@ -20,6 +20,7 @@ namespace ConStringCat.Core.VSInterop
 		public VariantsSetServiceImpl(DTE solutionInteropObject, VariantsSettingsLoader variantsSettingsLoader)
 		{
 			Contract.Requires(solutionInteropObject != null);
+			Contract.Requires(variantsSettingsLoader != null);
 			_solutionInteropObject = solutionInteropObject;
 			_variantsSettingsLoader = variantsSettingsLoader;
 		}
@@ -34,6 +35,11 @@ namespace ConStringCat.Core.VSInterop
 			if (selectedAlias != null)
 				WorkingSet.SetCurrentVariant(selectedAlias);
 			return WorkingSet.CurrentVariantAlias;
+		}
+
+		public bool IsServiceAvailable
+		{
+			get { return Solution.IsOpen; }
 		}
 
 		private ConnectionStringVariantsSet WorkingSet

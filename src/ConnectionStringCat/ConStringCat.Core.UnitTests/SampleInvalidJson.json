@@ -1,0 +1,24 @@
+﻿{
+	"sets": jsonStructureViolation[
+		{
+			"name": "First variants set",
+			"variants": [
+				{ "alias": "First item", "value": "firstValueItem" },
+				{ "alias": "Second item", "value": "secondValueItem" },
+				{ "alias": "third item", "value": "thirdValueItem" }
+			],
+			"updaters": [
+				{
+					"type": "xPath",
+					"filePath": "./SomeFolder/../../someFile.xml",
+					"xPath": "/catalog/book[@id='bk102']/price"
+				},
+				{
+					"type": "jsonPath",
+					"filePath": "R:/someJson.json",
+					"jsonPath": "$.store.book[0].title"
+				}
+			]
+		}
+	]
+}

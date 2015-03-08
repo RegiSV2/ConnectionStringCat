@@ -70,6 +70,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="SettingsManagement\VariantsSettingsLoaderImplTests.cs" />
+    <Compile Include="Utils\EmbeddedResourceInterop.cs" />
     <Compile Include="ValueUpdating\XmlFileConnectionStringUpdaterTests.cs" />
     <Compile Include="VSInterop\ConnectionStringVariantsSetTests.cs" />
     <Compile Include="Utils\VariantsCreator.cs" />
@@ -90,6 +91,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <EmbeddedResource Include="SampleVariantSettings.json" />
+    <EmbeddedResource Include="SampleInvalidVariantSettings.json" />
+    <EmbeddedResource Include="SampleInvalidJson.json" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ConStringCat.Core\ConStringCat.Core.csproj">

@@ -1,9 +1,8 @@
-﻿using System.Diagnostics;
-using System.IO;
+﻿using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Xml;
 using ConStringCat.Core.Model;
+using ConStringCat.Core.UnitTests.Utils;
 using ConStringCat.Core.ValueUpdating;
 using NUnit.Framework;
 
@@ -12,40 +11,32 @@ namespace ConStringCat.Core.UnitTests.ValueUpdating
 	[TestFixture]
 	public class XmlFileConnectionStringUpdaterTests
 	{
-		private readonly string _testDocumentPath = "xmlfile.xml";
+		private const string TestDocumentPath = "xmlfile.xml";
 
-		private readonly string _validXPath = "/catalog";
+		private const string ValidXPath = "/catalog";
 
-		private readonly string _validDocumentPath = "someFile.xml";
+		private const string ValidDocumentPath = "someFile.xml";
 
 		[SetUp]
 		public void SetUp()
 		{
-			var assembly = Assembly.GetExecutingAssembly();
-			var resourceName = "ConStringCat.Core.UnitTests.TestXmlFile.xml";
-
-			using (var stream = assembly.GetManifestResourceStream(resourceName))
-			{
-				Debug.Assert(stream != null, "stream != null");
-				using (var reader = new StreamReader(stream))
-				using (var writer = new StreamWriter(_testDocumentPath))
-					writer.Write(reader.ReadToEnd());
-			}
+			EmbeddedResourceInterop.WriteEmbeddedResourceToFile(
+				"ConStringCat.Core.UnitTests.TestXmlFile.xml", TestDocumentPath);
 		}
 
 		[TearDown]
 		public void TearDown()
 		{
-			if(File.Exists(_testDocumentPath))
-				File.Delete(_testDocumentPath);
+			if(File.Exists(TestDocumentPath))
+				File.Delete(TestDocumentPath);
 		}
 
 		[Test]
 		public void Create_InvalidConstructorParameters_ShouldFail()
 		{
-			Assert.That(() => new XmlFileConnectionStringUpdater(null, _validXPath),
+			Assert.That(() => new XmlFileConnectionStringUpdater(null, ValidXPath),
 				Throws.Exception);
-			Assert.That(() => new XmlFileConnectionStringUpdater(_validDocumentPath, null),
+			Assert.That(() => new XmlFileConnectionStringUpdater(ValidDocumentPath, null),
 				Throws.Exception);
 		}
 
@@ -73,8 +64,8 @@ namespace ConStringCat.Core.UnitTests.ValueUpdating
 		[Test]
 		public void SetNewValue_DocumentDoesNotExist_ShouldThrowConnectionStringUpdatingException()
 		{
-			File.Delete(_testDocumentPath);
-			var updater = CreateUpdater(_testDocumentPath, _validXPath);
+			File.Delete(TestDocumentPath);
+			var updater = CreateUpdater(TestDocumentPath, ValidXPath);
 
 			AssertConnectionStringUpdatingExceptionThrown(updater);
 		}
@@ -82,7 +73,7 @@ namespace ConStringCat.Core.UnitTests.ValueUpdating
 		[Test]
 		public void SetNewValue_InvalidXPath_ShouldThrowConnectionStringUpdatingException()
 		{
-			var updater = CreateUpdater(_testDocumentPath, "some invalid xPath");
+			var updater = CreateUpdater(TestDocumentPath, "some invalid xPath");
 
 			AssertConnectionStringUpdatingExceptionThrown(updater);
 		}
@@ -90,20 +81,20 @@ namespace ConStringCat.Core.UnitTests.ValueUpdating
 		[Test]
 		public void SetNewValue_PathToZeroNodes_ShouldThrowConnectionStringUpdatingException()
 		{
-			var updater = CreateUpdater(_testDocumentPath, "/nonExistingRoute");
+			var updater = CreateUpdater(TestDocumentPath, "/nonExistingRoute");
 
 			AssertConnectionStringUpdatingExceptionThrown(updater);
 		}
 
 		private void SetNewValue_TestWithPath(string xPath)
 		{
-			var updater = CreateUpdater(_testDocumentPath, xPath);
+			var updater = CreateUpdater(TestDocumentPath, xPath);
 
 			var newValue = "some new value";
 			updater.SetNewValue(newValue);
 
 			var document = new XmlDocument();
-			document.Load(_testDocumentPath);
+			document.Load(TestDocumentPath);
 			var nodes = document.SelectNodes(xPath);
 			Assert.That(nodes != null && nodes.Count > 0);
 			foreach (var node in nodes.Cast<XmlNode>())

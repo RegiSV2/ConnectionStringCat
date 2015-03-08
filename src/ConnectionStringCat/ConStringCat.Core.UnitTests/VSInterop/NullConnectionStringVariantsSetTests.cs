@@ -7,7 +7,7 @@ namespace ConStringCat.Core.UnitTests.VSInterop
 	[TestFixture]
 	public class NullConnectionStringVariantsSetTests
 	{
-		private readonly NullConnectionStringVariantsSet _set = new NullConnectionStringVariantsSet();
+		private readonly NullConnectionStringVariantsSet _set = NullConnectionStringVariantsSet.Instance;
 
 		[Test]
 		public void AllProperties_ShouldBeEmpty()

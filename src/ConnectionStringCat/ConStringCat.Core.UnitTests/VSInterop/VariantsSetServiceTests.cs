@@ -54,7 +54,7 @@ namespace ConStringCat.Core.UnitTests.VSInterop
 
 			_loader = new Mock<VariantsSettingsLoader>();
 			_loader.Setup(x => x.GetEmptyVariantsSet())
-				.Returns(new NullConnectionStringVariantsSet());
+				.Returns(NullConnectionStringVariantsSet.Instance);
 			RegisterVariantsSetForPath(_loader, DefaultSolutionPath, () => _defaultVariantsSet);
 			RegisterVariantsSetForPath(_loader, ModifiedSolutionPath, () => _modifiedVariantsSet);
 		}
@@ -165,6 +165,18 @@ namespace ConStringCat.Core.UnitTests.VSInterop
 			_solution.Setup(x => x.IsOpen).Returns(false);
 			//Assert
 			Assert.That(_service.GetSetCurrentVariant(null), Is.EqualTo(null));
+		}
+
+		[Test]
+		[TestCase(true)]
+		[TestCase(false)]
+		public void IsServiceAvailable_ShouldBeAvailableOnlyWhenSolutionIsOpen(bool isSolutionOpen)
+		{
+			//Arrange
+			_solution.Setup(x => x.IsOpen).Returns(isSolutionOpen);
+
+			//Assert
+			Assert.That(_service.IsServiceAvailable == _solution.Object.IsOpen);
 		}
 	}
 }

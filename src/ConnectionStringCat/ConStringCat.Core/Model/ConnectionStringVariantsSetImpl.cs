@@ -85,7 +85,9 @@ namespace ConStringCat.Core.Model
 			var oldAlias = CurrentVariantAlias;
 			CurrentVariantAlias = variantAlias;
 			if (oldAlias != CurrentVariantAlias)
-				Parallel.ForEach(_updaters, updater => updater.SetNewValue(_variants[oldAlias]));
+			{
+				InvokeUpdaters(oldAlias);
+			}
 		}
 
 		public void AddUpdater(ConnectionStringUpdater updater)
@@ -96,6 +98,26 @@ namespace ConStringCat.Core.Model
 		}
 
 		#endregion
+
+		private void InvokeUpdaters(string oldAlias)
+		{
+			var exceptions = new List<Exception>();
+
+			foreach (var updater in _updaters)
+			{
+				try
+				{
+					updater.SetNewValue(_variants[oldAlias]);
+				}
+				catch (Exception ex)
+				{
+					exceptions.Add(ex);
+				}
+			}
+
+			if (exceptions.Any())
+				throw new AggregateException(exceptions);
+		}
 
 		[ContractInvariantMethod]
 		private void Invariant()
