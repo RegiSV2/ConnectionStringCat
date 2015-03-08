@@ -66,15 +66,15 @@ namespace SergeyUskov.ConnectionStringCat
 
 		private VariantsSetService InitVariantSets()
 		{
-			var variants = new ConnectionStringVariantsSet("Database");
-			variants.AddVariant(new ConnectionStringVariant("First", "First string"));
-			variants.AddVariant(new ConnectionStringVariant("Second", "Second string"));
-			variants.AddVariant(new ConnectionStringVariant("Third", "Third string"));
-			variants.SetCurrentVariant(variants.Variants.First().Name);
+			var variants = new ConnectionStringVariantsSetImpl("Database");
+			variants.AddVariant("First", "First string");
+			variants.AddVariant("Second", "Second string");
+			variants.AddVariant("Third", "Third string");
+			variants.SetCurrentVariant(variants.Variants.First().Key);
 			variants.AddUpdater(new XmlFileConnectionStringUpdater("H:\\testxml.xml", "/catalog/book[last()]/@id"));
 
 			var service = IoC.Container.Resolve<VariantsSetService>();
-			service.SetVariantsSet(variants);
+			//service.SetVariantsSet(variants);
 			return service;
 		}
 

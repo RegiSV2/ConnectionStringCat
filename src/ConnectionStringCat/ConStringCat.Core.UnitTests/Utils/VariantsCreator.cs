@@ -13,9 +13,15 @@ namespace ConStringCat.Core.UnitTests.Utils
 
 		private const string VariantAliasName = "Some var name";
 
-		public static ConnectionStringVariant Variant(int aliasIndex)
+		public static void AddVariant(ConnectionStringVariantsSetImpl variantsSet, int aliasIndex)
 		{
-			return new ConnectionStringVariant(VariantAlias(aliasIndex), VariantStrName);
+			var variant = CreateVariant(aliasIndex);
+			variantsSet.AddVariant(variant.Key, variant.Value);
+		}
+
+		public static KeyValuePair<string, string> CreateVariant(int aliasIndex)
+		{
+			return new KeyValuePair<string, string>(VariantAlias(aliasIndex), VariantStrName);
 		}
 
 		public static string VariantAlias(int aliasIndex)

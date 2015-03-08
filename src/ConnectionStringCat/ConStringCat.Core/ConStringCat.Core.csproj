@@ -110,21 +110,25 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Model\NullConnectionStringVariantsSet.cs" />
+    <Compile Include="SettingsManagement\VariantsSettingsLoaderImpl.cs" />
     <Compile Include="ValueUpdating\XmlFileConnectionStringUpdater.cs" />
     <Compile Include="Model\ConnectionStringUpdater.cs" />
     <Compile Include="Model\ConnectionStringUpdatingException.cs" />
+    <Compile Include="VSInterop\ConnectionStringVariantsSet.cs" />
     <Compile Include="VSInterop\VariantsSetServiceImpl.cs" />
     <Compile Include="VSInterop\VariantsSetService.cs" />
-    <Compile Include="Model\ConnectionStringVariant.cs" />
-    <Compile Include="Model\ConnectionStringVariantsSet.cs" />
+    <Compile Include="Model\ConnectionStringVariantsSetImpl.cs" />
     <Compile Include="VSInterop\CommandBinderFactory.cs" />
     <Compile Include="VSInterop\OleMenuCommandBinder.cs" />
+    <Compile Include="VSInterop\VariantsSettingsLoader.cs" />
     <Compile Include="VSInterop\VSCommandBinder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ConStringCat.Core.pfx" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

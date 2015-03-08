@@ -69,9 +69,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="SettingsManagement\VariantsSettingsLoaderImplTests.cs" />
     <Compile Include="ValueUpdating\XmlFileConnectionStringUpdaterTests.cs" />
     <Compile Include="VSInterop\ConnectionStringVariantsSetTests.cs" />
     <Compile Include="Utils\VariantsCreator.cs" />
+    <Compile Include="VSInterop\NullConnectionStringVariantsSetTests.cs" />
     <Compile Include="VSInterop\OleMenuCommandBinderTest\NativeCommandInstanceCallbackOleMenuCommandBinderTests.cs" />
     <Compile Include="VSInterop\OleMenuCommandBinderTest\NativeCommandOleMenuCommandBinderTests.cs" />
     <Compile Include="VSInterop\OleMenuCommandBinderTest\NativeCommandStaticCallbackOleMenuCommandBinderTests.cs" />

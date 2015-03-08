@@ -16,43 +16,49 @@ namespace ConStringCat.Core.UnitTests.VSInterop
 
 		private const string ConnectionStringUpdateFailReason = "Some reason";
 
-		private ConnectionStringVariantsSet _variantsSet;
+		private ConnectionStringVariantsSetImpl _variantsSet;
 
 		private void SelectLastVariant()
 		{
-			_variantsSet.SetCurrentVariant(_variantsSet.Variants.Last().Name);
+			_variantsSet.SetCurrentVariant(_variantsSet.Variants.Last().Key);
 		}
 
 		[SetUp]
 		public void InitializeContext()
 		{
-			_variantsSet = new ConnectionStringVariantsSet(VariantsSetName);
+			_variantsSet = new ConnectionStringVariantsSetImpl(VariantsSetName);
 		}
 
 		[Test]
 		public void AddVariant_NotNullVariant_ShouldAddNewVariant()
 		{
 			//Arrange
-			var addedVariant = VariantsCreator.Variant(0);
+			var addedVariant = VariantsCreator.CreateVariant(0);
+
 			//Act
-			_variantsSet.AddVariant(addedVariant);
+			_variantsSet.AddVariant(addedVariant.Key, addedVariant.Value);
+
 			//Assert
 			Assert.That(_variantsSet.Variants.Count, Is.EqualTo(1));
-			Assert.That(_variantsSet.Variants[0] == addedVariant);
+			Assert.That(_variantsSet.Variants.First(), Is.EqualTo(addedVariant));
 		}
 
 		[Test]
-		public void AddVariant_NullVariant_ShouldThrowException()
+		[TestCase(null, null)]
+		[TestCase("", null)]
+		[TestCase(null, "")]
+		[TestCase("", "")]
+		public void AddVariant_NullVariant_ShouldThrowException(string alias, string value)
 		{
-			Assert.That(() => _variantsSet.AddVariant(null), Throws.Exception);
+			Assert.That(() => _variantsSet.AddVariant(alias, value), Throws.Exception);
 		}
 
 		[Test]
 		public void Aliases_ShouldReturnVariantsAliases()
 		{
 			//Arrange
-			foreach (var idx in Enumerable.Range(0, 3))
-				_variantsSet.AddVariant(VariantsCreator.Variant(idx));
+			InitVariants();
+
 			//Act
 			var aliases = _variantsSet.Aliases;
 			//Assert
@@ -63,36 +69,37 @@ namespace ConStringCat.Core.UnitTests.VSInterop
 		[Test]
 		public void CurrentVariant_NoVariantsAdded_ShouldReturnNullVariant()
 		{
-			Assert.That(_variantsSet.CurrentVariant, Is.EqualTo(ConnectionStringVariant.Null));
+			Assert.That(_variantsSet.CurrentVariantAlias, Is.Null);
 		}
 
 		[Test]
 		public void CurrentVariant_SomeVariantsAdded_ShouldReturnFirstAddedVariant()
 		{
 			//Arrange
-			foreach (var idx in Enumerable.Range(0, 3))
-				_variantsSet.AddVariant(VariantsCreator.Variant(idx));
+			InitVariants();
+
 			//Assert
-			Assert.That(_variantsSet.CurrentVariant, Is.EqualTo(_variantsSet.Variants.First()));
+			Assert.That(_variantsSet.CurrentVariantAlias, Is.EqualTo(_variantsSet.Variants.First().Key));
 		}
 
 		[Test]
 		public void SetCurrentVariant_SetOwnedVariant_ShouldSetVariantProperly()
 		{
 			//Arrange
-			_variantsSet.AddVariant(VariantsCreator.Variant(0));
-			_variantsSet.AddVariant(VariantsCreator.Variant(1));
+			InitVariants();
+
 			//Act
 			SelectLastVariant();
+
 			//Assert
-			Assert.That(_variantsSet.CurrentVariant == _variantsSet.Variants.Last());
+			Assert.That(_variantsSet.CurrentVariantAlias, Is.EqualTo(_variantsSet.Variants.Last().Key));
 		}
 
 		[Test]
 		public void SetCurrentVariant_SetNotOwnedVariant_ShouldThrowArgumentException()
 		{
 			Assert.That(() => _variantsSet.SetCurrentVariant(VariantsCreator.VariantAlias(0)),
-				Throws.InstanceOf<InvalidOperationException>());
+				Throws.ArgumentException);
 		}
 
 		[Test]
@@ -100,13 +107,13 @@ namespace ConStringCat.Core.UnitTests.VSInterop
 		{
 			//Arrange
 			var variantToSet = InitVariants();
-			var updaters = InitUpdaters(variantToSet);
+			var updaters = InitUpdaters(variantToSet.Value);
 
 			//Act
-			_variantsSet.SetCurrentVariant(variantToSet.Name);
+			_variantsSet.SetCurrentVariant(variantToSet.Key);
 
 			//Assert
-			VerifyAllUpdatersCalled(updaters, variantToSet);
+			VerifyAllUpdatersCalled(updaters, variantToSet.Value);
 		}
 
 		[Test]
@@ -114,12 +121,12 @@ namespace ConStringCat.Core.UnitTests.VSInterop
 		{
 			//Arrange
 			var variantToSet = InitVariants();
-			var updaters = InitUpdatersWithPossibleFails(variantToSet);
+			var updaters = InitUpdatersWithPossibleFails(variantToSet.Value);
 
 			//Act
 			try
 			{
-				_variantsSet.SetCurrentVariant(variantToSet.Name);
+				_variantsSet.SetCurrentVariant(variantToSet.Key);
 			}
 			catch (Exception)
 			{
@@ -127,7 +134,7 @@ namespace ConStringCat.Core.UnitTests.VSInterop
 			}
 
 			//Assert
-			VerifyAllUpdatersCalled(updaters, variantToSet);
+			VerifyAllUpdatersCalled(updaters, variantToSet.Value);
 		}
 
 		[Test]
@@ -135,12 +142,12 @@ namespace ConStringCat.Core.UnitTests.VSInterop
 		{
 			//Arrange
 			var variantToSet = InitVariants();
-			InitUpdatersWithPossibleFails(variantToSet);
+			InitUpdatersWithPossibleFails(variantToSet.Value);
 
 			//Assert
 			try
 			{
-				_variantsSet.SetCurrentVariant(variantToSet.Name);
+				_variantsSet.SetCurrentVariant(variantToSet.Key);
 				Assert.Fail();
 			}
 			catch (AggregateException ex)
@@ -170,44 +177,44 @@ namespace ConStringCat.Core.UnitTests.VSInterop
 			Assert.That(() => _variantsSet.AddUpdater(updater), Throws.Exception);
 		}
 
-		private ConnectionStringVariant InitVariants()
+		private KeyValuePair<string, string> InitVariants()
 		{
-			_variantsSet.AddVariant(VariantsCreator.Variant(0));
-			_variantsSet.AddVariant(VariantsCreator.Variant(1));
+			foreach (var idx in Enumerable.Range(0, 3))
+				VariantsCreator.AddVariant(_variantsSet, idx);
 			return _variantsSet.Variants.Last();
 		}
 
-		private List<Mock<ConnectionStringUpdater>> InitUpdaters(ConnectionStringVariant variantToSet)
+		private List<Mock<ConnectionStringUpdater>> InitUpdatersWithPossibleFails(string valueToSet)
+		{
+			var updaters = InitUpdaters(valueToSet);
+			ThrowExceptionOnInvoke(updaters.First());
+			ThrowExceptionOnInvoke(updaters.Last());
+			return updaters;
+		}
+
+		private List<Mock<ConnectionStringUpdater>> InitUpdaters(string variantValueToSet)
 		{
 			var updaters = new List<Mock<ConnectionStringUpdater>>();
 			for (var i = 0; i < 5; i++)
 			{
 				var updater = new Mock<ConnectionStringUpdater>();
-				updater.Setup(x => x.SetNewValue(variantToSet.Value)).Verifiable();
+				updater.Setup(x => x.SetNewValue(variantValueToSet)).Verifiable();
 				updaters.Add(updater);
 				_variantsSet.AddUpdater(updater.Object);
 			}
 			return updaters;
 		}
 
-		private static void VerifyAllUpdatersCalled(List<Mock<ConnectionStringUpdater>> updaters, ConnectionStringVariant variantToSet)
+		private static void VerifyAllUpdatersCalled(List<Mock<ConnectionStringUpdater>> updaters, string valueToSet)
 		{
 			foreach (var updater in updaters)
-				updater.Verify(x => x.SetNewValue(variantToSet.Value), Times.Once);
+				updater.Verify(x => x.SetNewValue(valueToSet), Times.Once);
 		}
 
 		private static void ThrowExceptionOnInvoke(Mock<ConnectionStringUpdater> updater)
 		{
 			updater.Setup(x => x.SetNewValue(It.IsAny<string>()))
 				.Throws(new ConnectionStringUpdatingException(ConnectionStringUpdateFailReason));
-		}
-
-		private List<Mock<ConnectionStringUpdater>> InitUpdatersWithPossibleFails(ConnectionStringVariant variantToSet)
-		{
-			var updaters = InitUpdaters(variantToSet);
-			ThrowExceptionOnInvoke(updaters.First());
-			ThrowExceptionOnInvoke(updaters.Last());
-			return updaters;
 		}
 	}
 }

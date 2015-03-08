@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using ConStringCat.Core.Model;
 using ConStringCat.Core.UnitTests.Utils;
 using ConStringCat.Core.VSInterop;
@@ -13,15 +14,21 @@ namespace ConStringCat.Core.UnitTests.VSInterop
 	{
 		private VariantsSetService _service;
 
-		private ConnectionStringVariantsSet _variantsSet;
+		private ConnectionStringVariantsSetImpl _defaultVariantsSet, _modifiedVariantsSet;
 
 		private Mock<DTE> _dte;
 
 		private Mock<Solution> _solution;
 
-		private ConnectionStringVariant LastRegisteredVariant()
+		private Mock<VariantsSettingsLoader> _loader;
+
+		private const string DefaultSolutionPath = "DefaultSolution.sln";
+
+		private const string ModifiedSolutionPath = "ModifiedSolution.sln";
+
+		private string LastRegisteredVariantAlias
 		{
-			return _variantsSet.Variants.Last();
+			get { return _defaultVariantsSet.Variants.Last().Key; }
 		}
 
 		#region Initialization
@@ -30,12 +37,9 @@ namespace ConStringCat.Core.UnitTests.VSInterop
 		public void InitializeContext()
 		{
 			CreateMocks();
+			CreateVariants();
 
-			_service = new VariantsSetServiceImpl(_dte.Object);
-			_variantsSet = new ConnectionStringVariantsSet("SetName");
-			foreach (var idx in Enumerable.Range(0, 3))
-				_variantsSet.AddVariant(VariantsCreator.Variant(idx));
-			_service.SetVariantsSet(_variantsSet);
+			_service = new VariantsSetServiceImpl(_dte.Object, _loader.Object);
 		}
 
 		private void CreateMocks()
@@ -43,8 +47,36 @@ namespace ConStringCat.Core.UnitTests.VSInterop
 			_dte = new Mock<DTE>();
 			_solution = new Mock<Solution>();
 			_solution.Setup(x => x.IsOpen).Returns(true);
+			_solution.Setup(x => x.FileName).Returns(DefaultSolutionPath);
+
 			_dte.Setup(x => x.Solution)
 				.Returns(_solution.Object);
+
+			_loader = new Mock<VariantsSettingsLoader>();
+			_loader.Setup(x => x.GetEmptyVariantsSet())
+				.Returns(new NullConnectionStringVariantsSet());
+			RegisterVariantsSetForPath(_loader, DefaultSolutionPath, () => _defaultVariantsSet);
+			RegisterVariantsSetForPath(_loader, ModifiedSolutionPath, () => _modifiedVariantsSet);
+		}
+
+		private void RegisterVariantsSetForPath(Mock<VariantsSettingsLoader> loaderMock, 
+			string solutionPath, Func<ConnectionStringVariantsSetImpl> set)
+		{
+			loaderMock.Setup(x => x.LoadVariantsSetForSolution(solutionPath))
+				.Returns(set)
+				.Verifiable();
+		}
+
+		private void CreateVariants()
+		{
+			const int variantsCount = 3;
+			_defaultVariantsSet = new ConnectionStringVariantsSetImpl("SetName");
+			_modifiedVariantsSet = new ConnectionStringVariantsSetImpl("ModifiedSetName");
+			foreach (var idx in Enumerable.Range(0, variantsCount))
+			{
+				VariantsCreator.AddVariant(_defaultVariantsSet, idx);
+				VariantsCreator.AddVariant(_modifiedVariantsSet, idx + variantsCount);
+			}
 		}
 
 		#endregion
@@ -55,7 +87,7 @@ namespace ConStringCat.Core.UnitTests.VSInterop
 			//Act
 			var aliases = _service.GetAliases();
 			//Assert
-			Assert.That(aliases, Is.EquivalentTo(_variantsSet.Aliases));
+			Assert.That(aliases, Is.EquivalentTo(_defaultVariantsSet.Aliases));
 		}
 
 		[Test]
@@ -70,39 +102,66 @@ namespace ConStringCat.Core.UnitTests.VSInterop
 		}
 
 		[Test]
+		public void GetVariantAliases_SolutionChangedAfterLastCall_ShouldLoadVariantsSetForNewSolution()
+		{
+			//Arrange
+			_service.GetAliases();
+			_solution.Setup(x => x.FileName).Returns(ModifiedSolutionPath);
+
+			//Act
+			var aliases = _service.GetAliases();
+
+			//Assert
+			Assert.That(aliases != null && aliases.Any());
+			_loader.Verify(x => x.LoadVariantsSetForSolution(ModifiedSolutionPath), Times.Once);
+		}
+
+		[Test]
+		public void GetVariantAliases_SolutionClosedAfterlastCall_ShouldFreeVariants()
+		{
+			//Arrange
+			_service.GetAliases();
+			_solution.Setup(x => x.IsOpen).Returns(false);
+
+			//Act
+			var aliases = _service.GetAliases();
+
+			//Assert
+			Assert.That(aliases != null && !aliases.Any());
+		}
+
+		[Test]
 		public void GetSetCurrentVariant_NullArgument_ShouldNotChangeCurrentVariant()
 		{
 			//Act
 			_service.GetSetCurrentVariant(null);
 			//Assert
-			Assert.That(_variantsSet.CurrentVariant, Is.EqualTo(_variantsSet.Variants.First()));
+			Assert.That(_defaultVariantsSet.CurrentVariantAlias, Is.EqualTo(_defaultVariantsSet.Variants.First().Key));
 		}
 
 		[Test]
 		public void GetSetCurrentVariant_NullArgument_ShouldRetunrCurrentVariant()
 		{
 			//Arrange
-			var currentVariantAlias = LastRegisteredVariant().Name;
-			_variantsSet.SetCurrentVariant(currentVariantAlias);
+			_defaultVariantsSet.SetCurrentVariant(LastRegisteredVariantAlias);
 			//Assert
-			Assert.That(_service.GetSetCurrentVariant(null), Is.EqualTo(currentVariantAlias));
+			Assert.That(_service.GetSetCurrentVariant(null), Is.EqualTo(LastRegisteredVariantAlias));
 		}
 
 		[Test]
 		public void GetSetCurrentVariant_NotNullArgument_ShouldSetCurrentVariant()
 		{
 			//Arrange
-			var selectedVariant = LastRegisteredVariant();
-			_service.GetSetCurrentVariant(selectedVariant.Name);
+			_service.GetSetCurrentVariant(LastRegisteredVariantAlias);
 			//Assert
-			Assert.That(_variantsSet.CurrentVariant, Is.EqualTo(selectedVariant));
+			Assert.That(_defaultVariantsSet.CurrentVariantAlias, Is.EqualTo(LastRegisteredVariantAlias));
 		}
 
 		[Test]
 		public void GetSetCurrentVariant_SolutionNotOpened_ShouldReturnNullVariant()
 		{
 			//Arrange
-			_service.GetSetCurrentVariant(LastRegisteredVariant().Name);
+			_service.GetSetCurrentVariant(LastRegisteredVariantAlias);
 			_solution.Setup(x => x.IsOpen).Returns(false);
 			//Assert
 			Assert.That(_service.GetSetCurrentVariant(null), Is.EqualTo(null));
