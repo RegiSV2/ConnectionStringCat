@@ -9,11 +9,11 @@ using NUnit.Framework;
 namespace ConStringCat.Core.UnitTests.Model
 {
 	[TestFixture]
-	public class ConnectionStringVariantsSetTests
+	public class ConfigurationValueVariantsSetTests
 	{
 		private const string VariantsSetName = "Some name";
 		private const string ConnectionStringUpdateFailReason = "Some reason";
-		private ConnectionStringVariantsSetImpl _variantsSet;
+		private ConfigurationValueVariantsSet _variantsSet;
 
 		private void SelectLastVariant()
 		{
@@ -23,7 +23,7 @@ namespace ConStringCat.Core.UnitTests.Model
 		[SetUp]
 		public void InitializeContext()
 		{
-			_variantsSet = new ConnectionStringVariantsSetImpl(VariantsSetName);
+			_variantsSet = new ConfigurationValueVariantsSet(VariantsSetName);
 		}
 
 		[Test]
@@ -150,14 +150,14 @@ namespace ConStringCat.Core.UnitTests.Model
 			catch (AggregateException ex)
 			{
 				Assert.That(ex.InnerExceptions.Count == 2);
-				Assert.That(ex.InnerExceptions.OfType<ConnectionStringUpdatingException>().Count() == 2);
+				Assert.That(ex.InnerExceptions.OfType<ConfigurationValueUpdatingException>().Count() == 2);
 			}
 		}
 
 		[Test]
 		public void AddUpdater_UpdaterNotAdded_ShouldAddNewUpdaterToUpdaters()
 		{
-			var updater = new Mock<ConnectionStringUpdater>().Object;
+			var updater = new Mock<ConfigurationValueUpdater>().Object;
 
 			_variantsSet.AddUpdater(updater);
 
@@ -167,7 +167,7 @@ namespace ConStringCat.Core.UnitTests.Model
 		[Test]
 		public void AddUpdater_UpdaterAlreadyAdded_ShouldThrowExcpetion()
 		{
-			var updater = new Mock<ConnectionStringUpdater>().Object;
+			var updater = new Mock<ConfigurationValueUpdater>().Object;
 
 			_variantsSet.AddUpdater(updater);
 
@@ -184,7 +184,7 @@ namespace ConStringCat.Core.UnitTests.Model
 			return _variantsSet.Variants.Last();
 		}
 
-		private List<Mock<ConnectionStringUpdater>> InitUpdatersWithPossibleFails(string valueToSet)
+		private List<Mock<ConfigurationValueUpdater>> InitUpdatersWithPossibleFails(string valueToSet)
 		{
 			var updaters = InitUpdaters(valueToSet);
 			ThrowExceptionOnInvoke(updaters.First());
@@ -192,12 +192,12 @@ namespace ConStringCat.Core.UnitTests.Model
 			return updaters;
 		}
 
-		private List<Mock<ConnectionStringUpdater>> InitUpdaters(string variantValueToSet)
+		private List<Mock<ConfigurationValueUpdater>> InitUpdaters(string variantValueToSet)
 		{
-			var updaters = new List<Mock<ConnectionStringUpdater>>();
+			var updaters = new List<Mock<ConfigurationValueUpdater>>();
 			for (var i = 0; i < 5; i++)
 			{
-				var updater = new Mock<ConnectionStringUpdater>();
+				var updater = new Mock<ConfigurationValueUpdater>();
 				updater.Setup(x => x.SetNewValue(variantValueToSet)).Verifiable();
 				updaters.Add(updater);
 				_variantsSet.AddUpdater(updater.Object);
@@ -205,16 +205,16 @@ namespace ConStringCat.Core.UnitTests.Model
 			return updaters;
 		}
 
-		private static void VerifyAllUpdatersCalled(List<Mock<ConnectionStringUpdater>> updaters, string valueToSet)
+		private static void VerifyAllUpdatersCalled(List<Mock<ConfigurationValueUpdater>> updaters, string valueToSet)
 		{
 			foreach (var updater in updaters)
 				updater.Verify(x => x.SetNewValue(valueToSet), Times.Once);
 		}
 
-		private static void ThrowExceptionOnInvoke(Mock<ConnectionStringUpdater> updater)
+		private static void ThrowExceptionOnInvoke(Mock<ConfigurationValueUpdater> updater)
 		{
 			updater.Setup(x => x.SetNewValue(It.IsAny<string>()))
-				.Throws(new ConnectionStringUpdatingException(ConnectionStringUpdateFailReason));
+				.Throws(new ConfigurationValueUpdatingException(ConnectionStringUpdateFailReason));
 		}
 	}
 }

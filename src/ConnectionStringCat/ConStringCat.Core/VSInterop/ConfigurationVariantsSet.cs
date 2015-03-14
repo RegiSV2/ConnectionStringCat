@@ -7,8 +7,8 @@ namespace ConStringCat.Core.VSInterop
 	/// <summary>
 	///     Represents a set of connection string possible variants
 	/// </summary>
-	[ContractClass(typeof (ConnectionStringVariantsSetContracts))]
-	public interface ConnectionStringVariantsSet : ConfigurationAliasesEntity
+	[ContractClass(typeof (ConfigurationVariantsSetContracts))]
+	public interface ConfigurationVariantsSet : ConfigurationAliasesEntity
 	{
 		/// <summary>
 		///     Returns all variants registered at set
@@ -16,8 +16,8 @@ namespace ConStringCat.Core.VSInterop
 		IReadOnlyDictionary<string, string> Variants { get; }
 	}
 
-	[ContractClassFor(typeof (ConnectionStringVariantsSet))]
-	internal abstract class ConnectionStringVariantsSetContracts : ConnectionStringVariantsSet
+	[ContractClassFor(typeof (ConfigurationVariantsSet))]
+	internal abstract class ConfigurationVariantsSetContracts : ConfigurationVariantsSet
 	{
 		public IReadOnlyDictionary<string, string> Variants
 		{

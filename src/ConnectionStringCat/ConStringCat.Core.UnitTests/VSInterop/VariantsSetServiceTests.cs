@@ -15,7 +15,7 @@ namespace ConStringCat.Core.UnitTests.VSInterop
 	{
 		private const string DefaultSolutionPath = "DefaultSolution.sln";
 		private const string ModifiedSolutionPath = "ModifiedSolution.sln";
-		private Mock<ConfigurationAliasesEntity> _defaultSettings, _modifiedSettings;
+		private Mock<ConfigurationAliasesEntity> _defaultAspect, _defaultAspect2, _modifiedAspect;
 		private Mock<DTE> _dte;
 		private Mock<VariantsSettingsLoader> _loader;
 		private VariantsSetService _service;
@@ -23,7 +23,80 @@ namespace ConStringCat.Core.UnitTests.VSInterop
 
 		private string LastRegisteredVariantAlias
 		{
-			get { return _defaultSettings.Object.Aliases.LastOrDefault(); }
+			get { return _defaultAspect.Object.Aliases.LastOrDefault(); }
+		}
+
+		[Test]
+		public void GetAspects_SolutionNotLoaded_ShouldReturnEmptyList()
+		{
+			//Arrange
+			_solution.SetupGet(x => x.IsOpen).Returns(false);
+			//Act
+			var aliases = _service.GetAspects();
+			//Assert
+			Assert.That(!aliases.Any());
+		}
+
+		[Test]
+		public void GetAspects_SolutionChangedAfterLastCall_ShouldLoadAspectsForNewSolution()
+		{
+			//Arrange
+			_service.GetAspects();
+			_solution.Setup(x => x.FileName).Returns(ModifiedSolutionPath);
+
+			//Act
+			var aspects = _service.GetAspects();
+
+			//Assert
+			Assert.That(aspects != null && aspects.Any());
+			_loader.Verify(x => x.LoadAspectsForSolution(ModifiedSolutionPath), Times.Once);
+		}
+
+		[Test]
+		public void GetAspects_SolutionClosedAfterlastCall_ShouldReturnEmptyAspects()
+		{
+			//Arrange
+			_service.GetAspects();
+			_solution.Setup(x => x.IsOpen).Returns(false);
+
+			//Act
+			var aspects = _service.GetAspects();
+
+			//Assert
+			Assert.That(aspects != null && !aspects.Any());
+		}
+
+		[Test]
+		public void GetSetCurrentAspect_NullArgument_ShouldNotChangeCurrentAspect()
+		{
+			//Act
+			var aliasesBeforeCall = _service.GetAliases();
+			_service.GetSetCurrentAspect(null);
+			var aliasesAfterCall = _service.GetAliases();
+
+			//Assert
+			CollectionAssert.AreEquivalent(aliasesBeforeCall, aliasesAfterCall);
+		}
+
+		[Test]
+		public void GetSetCurrentAspect_ShouldGetAndSetCurrentAspect()
+		{
+			//Act
+			_service.GetSetCurrentAspect(_defaultAspect2.Object.Name);
+			var currentAspectName = _service.GetSetCurrentAspect(null);
+
+			//Assert
+			Assert.AreEqual(currentAspectName, _defaultAspect2.Object.Name);
+		}
+
+		[Test]
+		public void GetSetCurrentAspect_SolutionNotOpened_ShouldReturnNullAspect()
+		{
+			//Arrange
+			_service.GetSetCurrentAspect(LastRegisteredVariantAlias);
+			_solution.Setup(x => x.IsOpen).Returns(false);
+			//Assert
+			Assert.That(_service.GetSetCurrentAspect(null), Is.EqualTo(null));
 		}
 
 		[Test]
@@ -32,7 +105,7 @@ namespace ConStringCat.Core.UnitTests.VSInterop
 			//Act
 			var aliases = _service.GetAliases();
 			//Assert
-			Assert.That(aliases, Is.EquivalentTo(_defaultSettings.Object.Aliases));
+			Assert.That(aliases, Is.EquivalentTo(_defaultAspect.Object.Aliases));
 		}
 
 		[Test]
@@ -81,14 +154,14 @@ namespace ConStringCat.Core.UnitTests.VSInterop
 			//Act
 			_service.GetSetCurrentVariant(null);
 			//Assert
-			_defaultSettings.Verify(x => x.SetCurrentVariant(It.IsAny<string>()), Times.Never);
+			_defaultAspect.Verify(x => x.SetCurrentVariant(It.IsAny<string>()), Times.Never);
 		}
 
 		[Test]
 		public void GetSetCurrentVariant_NullArgument_ShouldReturnCurrentVariant()
 		{
 			//Arrange
-			_defaultSettings.SetupGet(x => x.CurrentVariantAlias).Returns(LastRegisteredVariantAlias);
+			_defaultAspect.SetupGet(x => x.CurrentVariantAlias).Returns(LastRegisteredVariantAlias);
 			//Assert
 			Assert.That(_service.GetSetCurrentVariant(null), Is.EqualTo(LastRegisteredVariantAlias));
 		}
@@ -99,7 +172,7 @@ namespace ConStringCat.Core.UnitTests.VSInterop
 			//Arrange
 			_service.GetSetCurrentVariant(LastRegisteredVariantAlias);
 			//Assert
-			_defaultSettings.Verify(x => x.SetCurrentVariant(LastRegisteredVariantAlias), Times.Once);
+			_defaultAspect.Verify(x => x.SetCurrentVariant(LastRegisteredVariantAlias), Times.Once);
 		}
 
 		[Test]
@@ -149,9 +222,9 @@ namespace ConStringCat.Core.UnitTests.VSInterop
 			_loader.Setup(x => x.GetEmptyAspect())
 				.Returns(NullConfigurationAliasesEntity.Instance);
 			RegisterVariantsSetForPath(_loader, DefaultSolutionPath,
-				() => new List<ConfigurationAliasesEntity> {_defaultSettings.Object});
+				() => new List<ConfigurationAliasesEntity> {_defaultAspect.Object, _defaultAspect2.Object});
 			RegisterVariantsSetForPath(_loader, ModifiedSolutionPath,
-				() => new List<ConfigurationAliasesEntity> {_modifiedSettings.Object});
+				() => new List<ConfigurationAliasesEntity> {_modifiedAspect.Object});
 		}
 
 		private void RegisterVariantsSetForPath(Mock<VariantsSettingsLoader> loaderMock,
@@ -165,14 +238,17 @@ namespace ConStringCat.Core.UnitTests.VSInterop
 		private void CreateSettings()
 		{
 			const int variantsCount = 3;
-			_defaultSettings = new Mock<ConfigurationAliasesEntity>();
-			_defaultSettings.SetupGet(x => x.Name).Returns("EntityName");
-			_modifiedSettings = new Mock<ConfigurationAliasesEntity>();
-			_modifiedSettings.SetupGet(x => x.Name).Returns("ModifiedName");
+			_defaultAspect = new Mock<ConfigurationAliasesEntity>();
+			_defaultAspect.SetupGet(x => x.Name).Returns("EntityName");
+			_defaultAspect2 = new Mock<ConfigurationAliasesEntity>();
+			_defaultAspect2.SetupGet(x => x.Name).Returns("EntityName 2");
+			_modifiedAspect = new Mock<ConfigurationAliasesEntity>();
+			_modifiedAspect.SetupGet(x => x.Name).Returns("ModifiedName");
 			foreach (var idx in Enumerable.Range(0, variantsCount))
 			{
-				VariantsCreator.AddVariant(_defaultSettings, idx);
-				VariantsCreator.AddVariant(_modifiedSettings, idx + variantsCount);
+				VariantsCreator.AddVariant(_defaultAspect, idx);
+				VariantsCreator.AddVariant(_modifiedAspect, idx + variantsCount);
+				VariantsCreator.AddVariant(_defaultAspect2, idx + variantsCount * 2);
 			}
 		}
 

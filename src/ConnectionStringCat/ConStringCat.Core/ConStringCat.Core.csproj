@@ -118,18 +118,18 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Model\ConfigurationAspect.cs" />
-    <Compile Include="Model\NullConfigurationAliasesEntity.cs" />
+    <Compile Include="VSInterop\NullConfigurationAliasesEntity.cs" />
     <Compile Include="SettingsManagement\VariantsSettingsLoaderImpl.cs" />
     <Compile Include="Utils\EmbeddedResourcesHelper.cs" />
-    <Compile Include="ValueUpdating\JsonFileConnectionStringUpdater.cs" />
-    <Compile Include="ValueUpdating\XmlFileConnectionStringUpdater.cs" />
-    <Compile Include="Model\ConnectionStringUpdater.cs" />
-    <Compile Include="Model\ConnectionStringUpdatingException.cs" />
-    <Compile Include="VSInterop\ConnectionStringVariantsSet.cs" />
+    <Compile Include="ValueUpdating\JsonFileConfigurationValueUpdater.cs" />
+    <Compile Include="ValueUpdating\XmlFileConfigurationValueUpdater.cs" />
+    <Compile Include="Model\ConfigurationValueUpdater.cs" />
+    <Compile Include="Model\ConfigurationValueUpdatingException.cs" />
+    <Compile Include="VSInterop\ConfigurationVariantsSet.cs" />
     <Compile Include="VSInterop\ConfigurationAliasesEntity.cs" />
     <Compile Include="VSInterop\VariantsSetServiceImpl.cs" />
     <Compile Include="VSInterop\VariantsSetService.cs" />
-    <Compile Include="Model\ConnectionStringVariantsSetImpl.cs" />
+    <Compile Include="Model\ConfigurationValueVariantsSet.cs" />
     <Compile Include="VSInterop\CommandBinderFactory.cs" />
     <Compile Include="VSInterop\OleMenuCommandBinder.cs" />
     <Compile Include="VSInterop\VariantsSettingsLoader.cs" />

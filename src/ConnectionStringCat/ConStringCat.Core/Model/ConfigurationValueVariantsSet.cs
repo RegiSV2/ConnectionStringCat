@@ -8,7 +8,7 @@ using ConStringCat.Core.VSInterop;
 namespace ConStringCat.Core.Model
 {
 	/// <remarks>Non thread-safe</remarks>
-	public class ConnectionStringVariantsSetImpl : ConnectionStringVariantsSet
+	public class ConfigurationValueVariantsSet : ConfigurationVariantsSet
 	{
 		#region Constants
 
@@ -18,14 +18,14 @@ namespace ConStringCat.Core.Model
 
 		#region Constructors
 
-		public ConnectionStringVariantsSetImpl(string name)
+		public ConfigurationValueVariantsSet(string name)
 		{
 			Contract.Requires(!string.IsNullOrEmpty(name));
 
 			_variants = new Dictionary<string, string>();
-			_updaters = new List<ConnectionStringUpdater>();
+			_updaters = new List<ConfigurationValueUpdater>();
 			_readOnlyVariants = new ReadOnlyDictionary<string, string>(_variants);
-			_readOnlyUpdaters = new ReadOnlyCollection<ConnectionStringUpdater>(_updaters);
+			_readOnlyUpdaters = new ReadOnlyCollection<ConfigurationValueUpdater>(_updaters);
 
 			CurrentVariantAlias = null;
 			Name = name;
@@ -65,11 +65,11 @@ namespace ConStringCat.Core.Model
 
 		private readonly IDictionary<string, string> _variants;
 
-		private readonly IList<ConnectionStringUpdater> _updaters;
+		private readonly IList<ConfigurationValueUpdater> _updaters;
 
 		private readonly IReadOnlyDictionary<string, string> _readOnlyVariants;
 
-		private readonly IReadOnlyList<ConnectionStringUpdater> _readOnlyUpdaters;
+		private readonly IReadOnlyList<ConfigurationValueUpdater> _readOnlyUpdaters;
 
 		public string Name { get; private set; }
 
@@ -84,7 +84,7 @@ namespace ConStringCat.Core.Model
 			get { return _readOnlyVariants; }
 		}
 
-		public IReadOnlyList<ConnectionStringUpdater> Updaters
+		public IReadOnlyList<ConfigurationValueUpdater> Updaters
 		{
 			get { return _readOnlyUpdaters; }
 		}
@@ -117,7 +117,7 @@ namespace ConStringCat.Core.Model
 			}
 		}
 
-		public void AddUpdater(ConnectionStringUpdater updater)
+		public void AddUpdater(ConfigurationValueUpdater updater)
 		{
 			Contract.Assert(!_updaters.Contains(updater));
 

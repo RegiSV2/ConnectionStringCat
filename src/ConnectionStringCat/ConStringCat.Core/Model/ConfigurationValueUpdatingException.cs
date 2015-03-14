@@ -5,14 +5,14 @@ namespace ConStringCat.Core.Model
 	/// <summary>
 	///     Thrown when we didn't manage to update connection string value
 	/// </summary>
-	public class ConnectionStringUpdatingException : Exception
+	public class ConfigurationValueUpdatingException : Exception
 	{
-		public ConnectionStringUpdatingException(string message, Exception inner)
+		public ConfigurationValueUpdatingException(string message, Exception inner)
 			: base(message, inner)
 		{
 		}
 
-		public ConnectionStringUpdatingException(string message)
+		public ConfigurationValueUpdatingException(string message)
 			: base(message)
 		{
 		}

@@ -132,9 +132,9 @@ namespace ConStringCat.Core.SettingsManagement
 			return aspect;
 		}
 
-		private ConnectionStringVariantsSet InitVariantsSet(JToken setSettings)
+		private ConfigurationVariantsSet InitVariantsSet(JToken setSettings)
 		{
-			var variantsSet = new ConnectionStringVariantsSetImpl(ReadValue(setSettings, NameProperty));
+			var variantsSet = new ConfigurationValueVariantsSet(ReadValue(setSettings, NameProperty));
 
 			foreach (var variant in setSettings[VariantsProperty])
 				variantsSet.AddVariant(ReadValue(variant, VariantAliasProperty), ReadValue(variant, VariantValueProperty));
@@ -149,7 +149,7 @@ namespace ConStringCat.Core.SettingsManagement
 			return token[key].Value<string>();
 		}
 
-		private ConnectionStringUpdater CreateUpdater(JToken updaterSettings)
+		private ConfigurationValueUpdater CreateUpdater(JToken updaterSettings)
 		{
 			var updaterType = ReadValue(updaterSettings, UpdaterTypeProperty);
 			var filePath = ConvertToAbsolutePath(ReadValue(updaterSettings, UpdaterFilePathProperty));
@@ -165,14 +165,14 @@ namespace ConStringCat.Core.SettingsManagement
 			return Path.Combine(Directory.GetCurrentDirectory(), pathFromSettings);
 		}
 
-		private ConnectionStringUpdater CreateXmlUpdater(string filePath, string xmlPath)
+		private ConfigurationValueUpdater CreateXmlUpdater(string filePath, string xmlPath)
 		{
-			return new XmlFileConnectionStringUpdater(filePath, xmlPath);
+			return new XmlFileConfigurationValueUpdater(filePath, xmlPath);
 		}
 
-		private ConnectionStringUpdater CreateJsonUpdater(string filePath, string jsonPath)
+		private ConfigurationValueUpdater CreateJsonUpdater(string filePath, string jsonPath)
 		{
-			return new JsonFileConnectionStringUpdater(filePath, jsonPath);
+			return new JsonFileConfigurationValueUpdater(filePath, jsonPath);
 		}
 	}
 }

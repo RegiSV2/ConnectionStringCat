@@ -72,8 +72,8 @@
     <Compile Include="Model\ConfigurationAspectTests.cs" />
     <Compile Include="SettingsManagement\VariantsSettingsLoaderImplTests.cs" />
     <Compile Include="Utils\EmbeddedResourceInterop.cs" />
-    <Compile Include="ValueUpdating\XmlFileConnectionStringUpdaterTests.cs" />
-    <Compile Include="Model\ConnectionStringVariantsSetTests.cs" />
+    <Compile Include="ValueUpdating\XmlFileConfigurationValueUpdaterTests.cs" />
+    <Compile Include="Model\ConfigurationValueVariantsSetTests.cs" />
     <Compile Include="Utils\VariantsCreator.cs" />
     <Compile Include="Model\NullConfigurationAliasesEntityTests.cs" />
     <Compile Include="VSInterop\OleMenuCommandBinderTest\NativeCommandInstanceCallbackOleMenuCommandBinderTests.cs" />

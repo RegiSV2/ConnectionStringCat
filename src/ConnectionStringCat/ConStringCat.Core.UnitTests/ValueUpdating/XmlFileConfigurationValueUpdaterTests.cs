@@ -9,7 +9,7 @@ using NUnit.Framework;
 namespace ConStringCat.Core.UnitTests.ValueUpdating
 {
 	[TestFixture]
-	public class XmlFileConnectionStringUpdaterTests
+	public class XmlFileConfigurationValueUpdaterTests
 	{
 		private const string TestDocumentPath = "xmlfile.xml";
 		private const string ValidXPath = "/catalog";
@@ -32,9 +32,9 @@ namespace ConStringCat.Core.UnitTests.ValueUpdating
 		[Test]
 		public void Create_InvalidConstructorParameters_ShouldFail()
 		{
-			Assert.That(() => new XmlFileConnectionStringUpdater(null, ValidXPath),
+			Assert.That(() => new XmlFileConfigurationValueUpdater(null, ValidXPath),
 				Throws.Exception);
-			Assert.That(() => new XmlFileConnectionStringUpdater(ValidDocumentPath, null),
+			Assert.That(() => new XmlFileConfigurationValueUpdater(ValidDocumentPath, null),
 				Throws.Exception);
 		}
 
@@ -101,14 +101,14 @@ namespace ConStringCat.Core.UnitTests.ValueUpdating
 			}
 		}
 
-		private void AssertConnectionStringUpdatingExceptionThrown(XmlFileConnectionStringUpdater updater)
+		private void AssertConnectionStringUpdatingExceptionThrown(XmlFileConfigurationValueUpdater updater)
 		{
-			Assert.That(() => updater.SetNewValue("some value"), Throws.InstanceOf<ConnectionStringUpdatingException>());
+			Assert.That(() => updater.SetNewValue("some value"), Throws.InstanceOf<ConfigurationValueUpdatingException>());
 		}
 
-		private XmlFileConnectionStringUpdater CreateUpdater(string filePath, string xPath)
+		private XmlFileConfigurationValueUpdater CreateUpdater(string filePath, string xPath)
 		{
-			return new XmlFileConnectionStringUpdater(filePath, xPath);
+			return new XmlFileConfigurationValueUpdater(filePath, xPath);
 		}
 	}
 }

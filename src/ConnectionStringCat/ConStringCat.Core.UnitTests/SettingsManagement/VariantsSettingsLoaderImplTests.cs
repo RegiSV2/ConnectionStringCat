@@ -85,34 +85,34 @@ namespace ConStringCat.Core.UnitTests.SettingsManagement
 			firstAspect.AddAlias("First string");
 			firstAspect.AddAlias("Second string");
 			firstAspect.AddAlias("Third string");
-			var conStrSet = new ConnectionStringVariantsSetImpl("Connection string");
+			var conStrSet = new ConfigurationValueVariantsSet("Connection string");
 			conStrSet.AddVariant("First string", "connection string 1");
 			conStrSet.AddVariant("Second string", "connection string 2");
 			conStrSet.AddVariant("Third string", "connection string 3");
-			conStrSet.AddUpdater(new XmlFileConnectionStringUpdater(ToAbsolutePath("./SomeFolder/../../someFile.xml"),
+			conStrSet.AddUpdater(new XmlFileConfigurationValueUpdater(ToAbsolutePath("./SomeFolder/../../someFile.xml"),
 				"/catalog/book[@id='bk102']/price"));
-			conStrSet.AddUpdater(new JsonFileConnectionStringUpdater("R:/someJson.json", "$.store.book[0].title"));
+			conStrSet.AddUpdater(new JsonFileConfigurationValueUpdater("R:/someJson.json", "$.store.book[0].title"));
 			firstAspect.AddVariantsSet(conStrSet);
-			var driverSet = new ConnectionStringVariantsSetImpl("Driver");
+			var driverSet = new ConfigurationValueVariantsSet("Driver");
 			driverSet.AddVariant("First string", "driver 1");
 			driverSet.AddVariant("Second string", "driver 2");
 			driverSet.AddVariant("Third string", "driver 3");
-			driverSet.AddUpdater(new XmlFileConnectionStringUpdater(ToAbsolutePath("./SomeFolder/../../someFile.xml"),
+			driverSet.AddUpdater(new XmlFileConfigurationValueUpdater(ToAbsolutePath("./SomeFolder/../../someFile.xml"),
 				"/catalog/book[@id='bk102']/author"));
-			driverSet.AddUpdater(new JsonFileConnectionStringUpdater("R:/someJson.json", "$.store.book[0].author"));
+			driverSet.AddUpdater(new JsonFileConfigurationValueUpdater("R:/someJson.json", "$.store.book[0].author"));
 			firstAspect.AddVariantsSet(driverSet);
 
 			var secondAspect = new ConfigurationAspect("Web service address");
 			secondAspect.AddAlias("First string");
 			secondAspect.AddAlias("Second string");
 			secondAspect.AddAlias("Third string");
-			var defaultAddrSet = new ConnectionStringVariantsSetImpl("Default set");
+			var defaultAddrSet = new ConfigurationValueVariantsSet("Default set");
 			defaultAddrSet.AddVariant("First string", "address 1");
 			defaultAddrSet.AddVariant("Second string", "address 2");
 			defaultAddrSet.AddVariant("Third string", "address 3");
-			defaultAddrSet.AddUpdater(new XmlFileConnectionStringUpdater(ToAbsolutePath("./SomeFolder/../../someFile.xml"),
+			defaultAddrSet.AddUpdater(new XmlFileConfigurationValueUpdater(ToAbsolutePath("./SomeFolder/../../someFile.xml"),
 				"/catalog/book[@id='bk102']/genre"));
-			defaultAddrSet.AddUpdater(new JsonFileConnectionStringUpdater("R:/someJson.json", "$.store.book[0].genre"));
+			defaultAddrSet.AddUpdater(new JsonFileConfigurationValueUpdater("R:/someJson.json", "$.store.book[0].genre"));
 			secondAspect.AddVariantsSet(defaultAddrSet);
 
 			CollectionAssert.IsNotEmpty(aspects);
@@ -137,15 +137,15 @@ namespace ConStringCat.Core.UnitTests.SettingsManagement
 		{
 			AssertConfigurationEntitiesEqual(expected, actual);
 			Assert.That(expected.Sets.Count == actual.Sets.Count);
-			foreach (var set in actual.Sets.Cast<ConnectionStringVariantsSetImpl>())
+			foreach (var set in actual.Sets.Cast<ConfigurationValueVariantsSet>())
 			{
 				var set1 = set;
-				var actualSet = expected.Sets.Cast<ConnectionStringVariantsSetImpl>().FirstOrDefault(x => x.Name == set1.Name);
+				var actualSet = expected.Sets.Cast<ConfigurationValueVariantsSet>().FirstOrDefault(x => x.Name == set1.Name);
 				AssertSetsEqual(set1, actualSet);
 			}
 		}
 
-		private void AssertSetsEqual(ConnectionStringVariantsSetImpl expected, ConnectionStringVariantsSetImpl actual)
+		private void AssertSetsEqual(ConfigurationValueVariantsSet expected, ConfigurationValueVariantsSet actual)
 		{
 			AssertConfigurationEntitiesEqual(expected, actual);
 			Assert.That(expected.Updaters.Count == actual.Updaters.Count);
@@ -153,22 +153,22 @@ namespace ConStringCat.Core.UnitTests.SettingsManagement
 				AssertUpdatersContainEqual(expected.Updaters, updater);
 		}
 
-		private void AssertUpdatersContainEqual(IReadOnlyList<ConnectionStringUpdater> updaters,
-			ConnectionStringUpdater updater)
+		private void AssertUpdatersContainEqual(IReadOnlyList<ConfigurationValueUpdater> updaters,
+			ConfigurationValueUpdater updater)
 		{
-			if (updater is JsonFileConnectionStringUpdater)
+			if (updater is JsonFileConfigurationValueUpdater)
 			{
-				AssertContainsUpdater(updaters, (JsonFileConnectionStringUpdater) updater,
+				AssertContainsUpdater(updaters, (JsonFileConfigurationValueUpdater) updater,
 					(a, b) => a.DocumentPath == b.DocumentPath && a.JsonPath == b.JsonPath);
 			}
-			else if (updater is XmlFileConnectionStringUpdater)
+			else if (updater is XmlFileConfigurationValueUpdater)
 			{
-				AssertContainsUpdater(updaters, (XmlFileConnectionStringUpdater) updater,
+				AssertContainsUpdater(updaters, (XmlFileConfigurationValueUpdater) updater,
 					(a, b) => a.DocumentPath == b.DocumentPath && a.XPath == b.XPath);
 			}
 		}
 
-		private void AssertContainsUpdater<TUpdater>(IEnumerable<ConnectionStringUpdater> updaters,
+		private void AssertContainsUpdater<TUpdater>(IEnumerable<ConfigurationValueUpdater> updaters,
 			TUpdater updater, Func<TUpdater, TUpdater, bool> comparer)
 		{
 			Assert.That(updaters.OfType<TUpdater>().Count(x => comparer(x, updater)) > 0);
