@@ -13,8 +13,8 @@ namespace ConStringCat.Core.UnitTests.VSInterop.CommandBinderFactoryTests
 		private VSCommandBinder InstantiateBinderWithInstanceCallback()
 		{
 			return Factory
-				.BindToOleMenuCommand(TestCommandId, 
-				TestBinderCallback.CallbackMethod(_binderCallback.Object));
+				.BindToOleMenuCommand(TestCommandId,
+					TestBinderCallback.CallbackMethod(_binderCallback.Object));
 		}
 
 		private VSCommandBinder InstantiateBinderWithStaticCallback()

@@ -9,42 +9,38 @@ PURPOSE, MERCHANTABILITY, OR NON-INFRINGEMENT.
 
 ***************************************************************************/
 
-using System;
-using System.Collections;
-using System.Text;
-using System.Reflection;
-using Microsoft.VsSDK.UnitTestLibrary;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Microsoft.VsSDK.UnitTestLibrary;
 using SergeyUskov.ConnectionStringCat;
 
 namespace ConnectionStringCat_UnitTests
 {
-	[TestClass()]
+	[TestClass]
 	public class PackageTest
 	{
-		[TestMethod()]
+		[TestMethod]
 		public void CreateInstance()
 		{
-			ConnectionStringCatPackage package = new ConnectionStringCatPackage();
+			var package = new ConnectionStringCatPackage();
 		}
 
-		[TestMethod()]
+		[TestMethod]
 		public void IsIVsPackage()
 		{
-			ConnectionStringCatPackage package = new ConnectionStringCatPackage();
-			Assert.IsNotNull(package as IVsPackage, "The object does not implement IVsPackage");
+			var package = new ConnectionStringCatPackage();
+			Assert.IsNotNull(package, "The object does not implement IVsPackage");
 		}
 
-		[TestMethod()]
+		[TestMethod]
 		public void SetSite()
 		{
 			// Create the package
-			IVsPackage package = new ConnectionStringCatPackage() as IVsPackage;
+			IVsPackage package = new ConnectionStringCatPackage();
 			Assert.IsNotNull(package, "The object does not implement IVsPackage");
 
 			// Create a basic service provider
-			OleServiceProvider serviceProvider = OleServiceProvider.CreateOleServiceProviderWithBasicServices();
+			var serviceProvider = OleServiceProvider.CreateOleServiceProviderWithBasicServices();
 
 			// Site the package
 			Assert.AreEqual(0, package.SetSite(serviceProvider), "SetSite did not return S_OK");

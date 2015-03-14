@@ -9,52 +9,55 @@ PURPOSE, MERCHANTABILITY, OR NON-INFRINGEMENT.
 
 ***************************************************************************/
 
-using System;
+using System.Windows.Forms;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VsSDK.UnitTestLibrary;
 
 namespace ConnectionStringCat_UnitTests.MenuItemTests
 {
-	static class UIShellServiceMock
+	internal static class UIShellServiceMock
 	{
 		private static GenericMockFactory uiShellFactory;
 
 		#region UiShell Getters
+
 		/// <summary>
-		/// Returns an IVsUiShell that does not implement any methods
+		///     Returns an IVsUiShell that does not implement any methods
 		/// </summary>
 		/// <returns></returns>
 		internal static BaseMock GetUiShellInstance()
 		{
 			if (uiShellFactory == null)
 			{
-				uiShellFactory = new GenericMockFactory("UiShell", new Type[] { typeof(IVsUIShell), typeof(IVsUIShellOpenDocument) });
+				uiShellFactory = new GenericMockFactory("UiShell", new[] {typeof (IVsUIShell), typeof (IVsUIShellOpenDocument)});
 			}
-			BaseMock uiShell = uiShellFactory.GetInstance();
+			var uiShell = uiShellFactory.GetInstance();
 			return uiShell;
 		}
 
 		/// <summary>
-		/// Get an IVsUiShell that implements SetWaitCursor, SaveDocDataToFile, ShowMessageBox
+		///     Get an IVsUiShell that implements SetWaitCursor, SaveDocDataToFile, ShowMessageBox
 		/// </summary>
 		/// <returns>uishell mock</returns>
 		internal static BaseMock GetUiShellInstance0()
 		{
-			BaseMock uiShell = GetUiShellInstance();
-			string name = string.Format("{0}.{1}", typeof(IVsUIShell).FullName, "SetWaitCursor");
-			uiShell.AddMethodCallback(name, new EventHandler<CallbackArgs>(SetWaitCursorCallBack));
+			var uiShell = GetUiShellInstance();
+			var name = string.Format("{0}.{1}", typeof (IVsUIShell).FullName, "SetWaitCursor");
+			uiShell.AddMethodCallback(name, SetWaitCursorCallBack);
 
-			name = string.Format("{0}.{1}", typeof(IVsUIShell).FullName, "SaveDocDataToFile");
-			uiShell.AddMethodCallback(name, new EventHandler<CallbackArgs>(SaveDocDataToFileCallBack));
+			name = string.Format("{0}.{1}", typeof (IVsUIShell).FullName, "SaveDocDataToFile");
+			uiShell.AddMethodCallback(name, SaveDocDataToFileCallBack);
 
-			name = string.Format("{0}.{1}", typeof(IVsUIShell).FullName, "ShowMessageBox");
-			uiShell.AddMethodCallback(name, new EventHandler<CallbackArgs>(ShowMessageBoxCallBack));
+			name = string.Format("{0}.{1}", typeof (IVsUIShell).FullName, "ShowMessageBox");
+			uiShell.AddMethodCallback(name, ShowMessageBoxCallBack);
 			return uiShell;
 		}
+
 		#endregion
 
 		#region Callbacks
+
 		private static void SetWaitCursorCallBack(object caller, CallbackArgs arguments)
 		{
 			arguments.ReturnValue = VSConstants.S_OK;
@@ -68,7 +71,7 @@ namespace ConnectionStringCat_UnitTests.MenuItemTests
 		private static void ShowMessageBoxCallBack(object caller, CallbackArgs arguments)
 		{
 			arguments.ReturnValue = VSConstants.S_OK;
-			arguments.SetParameter(10, (int)System.Windows.Forms.DialogResult.Yes);
+			arguments.SetParameter(10, (int) DialogResult.Yes);
 		}
 
 		#endregion

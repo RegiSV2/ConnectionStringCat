@@ -10,39 +10,71 @@ PURPOSE, MERCHANTABILITY, OR NON-INFRINGEMENT.
 ***************************************************************************/
 
 using System;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
+using Microsoft.VisualStudio.OLE.Interop;
 
-namespace ConnectionStringCat_IntegrationTests
+namespace ConnectionStringCat_IntegrationTests.IntegrationTest_Library
 {
 	/// <summary>
-	/// Defines pinvoked utility methods and internal VS Constants
+	///     Defines pinvoked utility methods and internal VS Constants
 	/// </summary>
 	internal static class NativeMethods
 	{
-		internal delegate bool CallBack(IntPtr hwnd, IntPtr lParam);
+		internal const int QS_KEY = 0x0001,
+			QS_MOUSEMOVE = 0x0002,
+			QS_MOUSEBUTTON = 0x0004,
+			QS_POSTMESSAGE = 0x0008,
+			QS_TIMER = 0x0010,
+			QS_PAINT = 0x0020,
+			QS_SENDMESSAGE = 0x0040,
+			QS_HOTKEY = 0x0080,
+			QS_ALLPOSTMESSAGE = 0x0100,
+			QS_MOUSE = QS_MOUSEMOVE | QS_MOUSEBUTTON,
+			QS_INPUT = QS_MOUSE | QS_KEY,
+			QS_ALLEVENTS = QS_INPUT | QS_POSTMESSAGE | QS_TIMER | QS_PAINT | QS_HOTKEY,
+			QS_ALLINPUT = QS_INPUT | QS_POSTMESSAGE | QS_TIMER | QS_PAINT | QS_HOTKEY | QS_SENDMESSAGE;
+
+		internal const int Facility_Win32 = 7;
+		internal const int WM_CLOSE = 0x0010;
+
+		internal const int
+			S_FALSE = 0x00000001,
+			S_OK = 0x00000000,
+			IDOK = 1,
+			IDCANCEL = 2,
+			IDABORT = 3,
+			IDRETRY = 4,
+			IDIGNORE = 5,
+			IDYES = 6,
+			IDNO = 7,
+			IDCLOSE = 8,
+			IDHELP = 9,
+			IDTRYAGAIN = 10,
+			IDCONTINUE = 11;
 
 		// Declare two overloaded SendMessage functions
 		[DllImport("user32.dll")]
 		internal static extern UInt32 SendMessage(IntPtr hWnd, UInt32 Msg,
 			UInt32 wParam, IntPtr lParam);
 
-		[DllImport("user32.dll", CharSet = System.Runtime.InteropServices.CharSet.Auto)]
-		internal static extern bool PeekMessage([In, Out] ref Microsoft.VisualStudio.OLE.Interop.MSG msg, HandleRef hwnd, int msgMin, int msgMax, int remove);
+		[DllImport("user32.dll", CharSet = CharSet.Auto)]
+		internal static extern bool PeekMessage([In, Out] ref MSG msg, HandleRef hwnd, int msgMin, int msgMax, int remove);
 
-		[DllImport("user32.dll", CharSet = System.Runtime.InteropServices.CharSet.Auto)]
-		internal static extern bool TranslateMessage([In, Out] ref Microsoft.VisualStudio.OLE.Interop.MSG msg);
+		[DllImport("user32.dll", CharSet = CharSet.Auto)]
+		internal static extern bool TranslateMessage([In, Out] ref MSG msg);
 
-		[DllImport("user32.dll", CharSet = System.Runtime.InteropServices.CharSet.Auto)]
-		internal static extern int DispatchMessage([In] ref Microsoft.VisualStudio.OLE.Interop.MSG msg);
+		[DllImport("user32.dll", CharSet = CharSet.Auto)]
+		internal static extern int DispatchMessage([In] ref MSG msg);
 
-		[DllImport("user32.dll", CharSet = System.Runtime.InteropServices.CharSet.Auto)]
+		[DllImport("user32.dll", CharSet = CharSet.Auto)]
 		internal static extern bool AttachThreadInput(uint idAttach, uint idAttachTo, bool attach);
 
-		[DllImport("user32.dll", CharSet = System.Runtime.InteropServices.CharSet.Auto)]
+		[DllImport("user32.dll", CharSet = CharSet.Auto)]
 		internal static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
 
-		[DllImport("kernel32.dll", CharSet = System.Runtime.InteropServices.CharSet.Auto)]
+		[DllImport("kernel32.dll", CharSet = CharSet.Auto)]
 		internal static extern uint GetCurrentThreadId();
 
 		[DllImport("user32")]
@@ -51,56 +83,22 @@ namespace ConnectionStringCat_IntegrationTests
 		[DllImport("user32")]
 		internal static extern bool IsWindowVisible(IntPtr hDlg);
 
-		[DllImport("user32.dll", CharSet = System.Runtime.InteropServices.CharSet.Auto)]
+		[DllImport("user32.dll", CharSet = CharSet.Auto)]
 		internal static extern IntPtr SetFocus(IntPtr hWnd);
 
 		[DllImport("user32")]
 		internal static extern int GetClassName(IntPtr hWnd,
-											   StringBuilder className,
-											   int stringLength);
+			StringBuilder className,
+			int stringLength);
+
 		[DllImport("user32")]
 		internal static extern int GetWindowText(IntPtr hWnd, StringBuilder className, int stringLength);
-
 
 		[DllImport("user32")]
 		internal static extern bool EndDialog(IntPtr hDlg, int result);
 
 		[DllImport("Kernel32")]
 		internal static extern long GetLastError();
-
-		internal const int QS_KEY = 0x0001,
-						QS_MOUSEMOVE = 0x0002,
-						QS_MOUSEBUTTON = 0x0004,
-						QS_POSTMESSAGE = 0x0008,
-						QS_TIMER = 0x0010,
-						QS_PAINT = 0x0020,
-						QS_SENDMESSAGE = 0x0040,
-						QS_HOTKEY = 0x0080,
-						QS_ALLPOSTMESSAGE = 0x0100,
-						QS_MOUSE = QS_MOUSEMOVE | QS_MOUSEBUTTON,
-						QS_INPUT = QS_MOUSE | QS_KEY,
-						QS_ALLEVENTS = QS_INPUT | QS_POSTMESSAGE | QS_TIMER | QS_PAINT | QS_HOTKEY,
-						QS_ALLINPUT = QS_INPUT | QS_POSTMESSAGE | QS_TIMER | QS_PAINT | QS_HOTKEY | QS_SENDMESSAGE;
-
-		internal const int Facility_Win32 = 7;
-
-		internal const int WM_CLOSE = 0x0010;
-
-		internal const int
-					   S_FALSE = 0x00000001,
-					   S_OK = 0x00000000,
-
-					   IDOK = 1,
-					   IDCANCEL = 2,
-					   IDABORT = 3,
-					   IDRETRY = 4,
-					   IDIGNORE = 5,
-					   IDYES = 6,
-					   IDNO = 7,
-					   IDCLOSE = 8,
-					   IDHELP = 9,
-					   IDTRYAGAIN = 10,
-					   IDCONTINUE = 11;
 
 		internal static long HResultFromWin32(long error)
 		{
@@ -113,7 +111,7 @@ namespace ConnectionStringCat_IntegrationTests
 		}
 
 		/// <devdoc>
-		/// Please use this "approved" method to compare file names.
+		///     Please use this "approved" method to compare file names.
 		/// </devdoc>
 		public static bool IsSamePath(string file1, string file2)
 		{
@@ -141,11 +139,12 @@ namespace ConnectionStringCat_IntegrationTests
 			}
 			catch (UriFormatException e)
 			{
-				System.Diagnostics.Trace.WriteLine("Exception " + e.Message);
+				Trace.WriteLine("Exception " + e.Message);
 			}
 
 			return false;
 		}
 
+		internal delegate bool CallBack(IntPtr hwnd, IntPtr lParam);
 	}
 }

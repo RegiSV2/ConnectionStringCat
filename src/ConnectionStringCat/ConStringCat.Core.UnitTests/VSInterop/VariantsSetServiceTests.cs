@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using ConStringCat.Core.Model;
 using ConStringCat.Core.UnitTests.Utils;
@@ -12,74 +13,18 @@ namespace ConStringCat.Core.UnitTests.VSInterop
 	[TestFixture]
 	public class VariantsSetServiceTests
 	{
-		private VariantsSetService _service;
-
-		private ConnectionStringVariantsSetImpl _defaultVariantsSet, _modifiedVariantsSet;
-
-		private Mock<DTE> _dte;
-
-		private Mock<Solution> _solution;
-
-		private Mock<VariantsSettingsLoader> _loader;
-
 		private const string DefaultSolutionPath = "DefaultSolution.sln";
-
 		private const string ModifiedSolutionPath = "ModifiedSolution.sln";
+		private Mock<ConfigurationAliasesEntity> _defaultSettings, _modifiedSettings;
+		private Mock<DTE> _dte;
+		private Mock<VariantsSettingsLoader> _loader;
+		private VariantsSetService _service;
+		private Mock<Solution> _solution;
 
 		private string LastRegisteredVariantAlias
 		{
-			get { return _defaultVariantsSet.Variants.Last().Key; }
+			get { return _defaultSettings.Object.Aliases.LastOrDefault(); }
 		}
-
-		#region Initialization
-
-		[SetUp]
-		public void InitializeContext()
-		{
-			CreateMocks();
-			CreateVariants();
-
-			_service = new VariantsSetServiceImpl(_dte.Object, _loader.Object);
-		}
-
-		private void CreateMocks()
-		{
-			_dte = new Mock<DTE>();
-			_solution = new Mock<Solution>();
-			_solution.Setup(x => x.IsOpen).Returns(true);
-			_solution.Setup(x => x.FileName).Returns(DefaultSolutionPath);
-
-			_dte.Setup(x => x.Solution)
-				.Returns(_solution.Object);
-
-			_loader = new Mock<VariantsSettingsLoader>();
-			_loader.Setup(x => x.GetEmptyVariantsSet())
-				.Returns(NullConnectionStringVariantsSet.Instance);
-			RegisterVariantsSetForPath(_loader, DefaultSolutionPath, () => _defaultVariantsSet);
-			RegisterVariantsSetForPath(_loader, ModifiedSolutionPath, () => _modifiedVariantsSet);
-		}
-
-		private void RegisterVariantsSetForPath(Mock<VariantsSettingsLoader> loaderMock, 
-			string solutionPath, Func<ConnectionStringVariantsSetImpl> set)
-		{
-			loaderMock.Setup(x => x.LoadVariantsSetForSolution(solutionPath))
-				.Returns(set)
-				.Verifiable();
-		}
-
-		private void CreateVariants()
-		{
-			const int variantsCount = 3;
-			_defaultVariantsSet = new ConnectionStringVariantsSetImpl("SetName");
-			_modifiedVariantsSet = new ConnectionStringVariantsSetImpl("ModifiedSetName");
-			foreach (var idx in Enumerable.Range(0, variantsCount))
-			{
-				VariantsCreator.AddVariant(_defaultVariantsSet, idx);
-				VariantsCreator.AddVariant(_modifiedVariantsSet, idx + variantsCount);
-			}
-		}
-
-		#endregion
 
 		[Test]
 		public void GetVariantAliases_AliasesAdded_ShouldReturnAliasesFromSet()
@@ -87,7 +32,7 @@ namespace ConStringCat.Core.UnitTests.VSInterop
 			//Act
 			var aliases = _service.GetAliases();
 			//Assert
-			Assert.That(aliases, Is.EquivalentTo(_defaultVariantsSet.Aliases));
+			Assert.That(aliases, Is.EquivalentTo(_defaultSettings.Object.Aliases));
 		}
 
 		[Test]
@@ -113,7 +58,7 @@ namespace ConStringCat.Core.UnitTests.VSInterop
 
 			//Assert
 			Assert.That(aliases != null && aliases.Any());
-			_loader.Verify(x => x.LoadVariantsSetForSolution(ModifiedSolutionPath), Times.Once);
+			_loader.Verify(x => x.LoadAspectsForSolution(ModifiedSolutionPath), Times.Once);
 		}
 
 		[Test]
@@ -136,14 +81,14 @@ namespace ConStringCat.Core.UnitTests.VSInterop
 			//Act
 			_service.GetSetCurrentVariant(null);
 			//Assert
-			Assert.That(_defaultVariantsSet.CurrentVariantAlias, Is.EqualTo(_defaultVariantsSet.Variants.First().Key));
+			_defaultSettings.Verify(x => x.SetCurrentVariant(It.IsAny<string>()), Times.Never);
 		}
 
 		[Test]
-		public void GetSetCurrentVariant_NullArgument_ShouldRetunrCurrentVariant()
+		public void GetSetCurrentVariant_NullArgument_ShouldReturnCurrentVariant()
 		{
 			//Arrange
-			_defaultVariantsSet.SetCurrentVariant(LastRegisteredVariantAlias);
+			_defaultSettings.SetupGet(x => x.CurrentVariantAlias).Returns(LastRegisteredVariantAlias);
 			//Assert
 			Assert.That(_service.GetSetCurrentVariant(null), Is.EqualTo(LastRegisteredVariantAlias));
 		}
@@ -154,7 +99,7 @@ namespace ConStringCat.Core.UnitTests.VSInterop
 			//Arrange
 			_service.GetSetCurrentVariant(LastRegisteredVariantAlias);
 			//Assert
-			Assert.That(_defaultVariantsSet.CurrentVariantAlias, Is.EqualTo(LastRegisteredVariantAlias));
+			_defaultSettings.Verify(x => x.SetCurrentVariant(LastRegisteredVariantAlias), Times.Once);
 		}
 
 		[Test]
@@ -178,5 +123,59 @@ namespace ConStringCat.Core.UnitTests.VSInterop
 			//Assert
 			Assert.That(_service.IsServiceAvailable == _solution.Object.IsOpen);
 		}
+
+		#region Initialization
+
+		[SetUp]
+		public void InitializeContext()
+		{
+			CreateMocks();
+			CreateSettings();
+
+			_service = new VariantsSetServiceImpl(_dte.Object, _loader.Object);
+		}
+
+		private void CreateMocks()
+		{
+			_dte = new Mock<DTE>();
+			_solution = new Mock<Solution>();
+			_solution.Setup(x => x.IsOpen).Returns(true);
+			_solution.Setup(x => x.FileName).Returns(DefaultSolutionPath);
+
+			_dte.Setup(x => x.Solution)
+				.Returns(_solution.Object);
+
+			_loader = new Mock<VariantsSettingsLoader>();
+			_loader.Setup(x => x.GetEmptyAspect())
+				.Returns(NullConfigurationAliasesEntity.Instance);
+			RegisterVariantsSetForPath(_loader, DefaultSolutionPath,
+				() => new List<ConfigurationAliasesEntity> {_defaultSettings.Object});
+			RegisterVariantsSetForPath(_loader, ModifiedSolutionPath,
+				() => new List<ConfigurationAliasesEntity> {_modifiedSettings.Object});
+		}
+
+		private void RegisterVariantsSetForPath(Mock<VariantsSettingsLoader> loaderMock,
+			string solutionPath, Func<IList<ConfigurationAliasesEntity>> set)
+		{
+			loaderMock.Setup(x => x.LoadAspectsForSolution(solutionPath))
+				.Returns(set)
+				.Verifiable();
+		}
+
+		private void CreateSettings()
+		{
+			const int variantsCount = 3;
+			_defaultSettings = new Mock<ConfigurationAliasesEntity>();
+			_defaultSettings.SetupGet(x => x.Name).Returns("EntityName");
+			_modifiedSettings = new Mock<ConfigurationAliasesEntity>();
+			_modifiedSettings.SetupGet(x => x.Name).Returns("ModifiedName");
+			foreach (var idx in Enumerable.Range(0, variantsCount))
+			{
+				VariantsCreator.AddVariant(_defaultSettings, idx);
+				VariantsCreator.AddVariant(_modifiedSettings, idx + variantsCount);
+			}
+		}
+
+		#endregion
 	}
 }

@@ -1,6 +1,6 @@
 namespace ConStringCat.Core.UnitTests.VSInterop.Utils
 {
-	sealed class StaticCallbackArgument
+	internal sealed class StaticCallbackArgument
 	{
 		public bool IsCallbackCalled { get; set; }
 	}

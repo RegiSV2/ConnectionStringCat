@@ -117,7 +117,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Model\NullConnectionStringVariantsSet.cs" />
+    <Compile Include="Model\ConfigurationAspect.cs" />
+    <Compile Include="Model\NullConfigurationAliasesEntity.cs" />
     <Compile Include="SettingsManagement\VariantsSettingsLoaderImpl.cs" />
     <Compile Include="Utils\EmbeddedResourcesHelper.cs" />
     <Compile Include="ValueUpdating\JsonFileConnectionStringUpdater.cs" />
@@ -125,6 +126,7 @@
     <Compile Include="Model\ConnectionStringUpdater.cs" />
     <Compile Include="Model\ConnectionStringUpdatingException.cs" />
     <Compile Include="VSInterop\ConnectionStringVariantsSet.cs" />
+    <Compile Include="VSInterop\ConfigurationAliasesEntity.cs" />
     <Compile Include="VSInterop\VariantsSetServiceImpl.cs" />
     <Compile Include="VSInterop\VariantsSetService.cs" />
     <Compile Include="Model\ConnectionStringVariantsSetImpl.cs" />

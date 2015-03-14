@@ -14,16 +14,14 @@ namespace ConStringCat.Core.UnitTests.SettingsManagement
 	[TestFixture]
 	public class VariantsSettingsLoaderImplTests
 	{
-		const string SolutionName = "TestSolutionFile.sln";
+		private const string SolutionName = "TestSolutionFile.sln";
 
-		const string ConnectionStringSettingsFileName = "TestSolutionFile" + VariantsSettingsLoaderImpl.SettingsFileSuffix;
+		private const string ConnectionStringSettingsFileName =
+			"TestSolutionFile" + VariantsSettingsLoaderImpl.SettingsFileSuffix;
 
 		private const string EmbeddedValidSettingsFile = "ConStringCat.Core.UnitTests.SampleVariantSettings.json";
-
 		private const string EmbeddedInvalidSettingsFile = "ConStringCat.Core.UnitTests.SampleInvalidVariantSettings.json";
-
 		private const string EmbeddedInvalidJsonFile = "ConStringCat.Core.UnitTests.SampleInvalidJson.json";
-
 		private VariantsSettingsLoaderImpl _loader;
 
 		[SetUp]
@@ -39,27 +37,27 @@ namespace ConStringCat.Core.UnitTests.SettingsManagement
 			GC.Collect();
 			GC.WaitForPendingFinalizers();
 			var filesToDelete = new[] {SolutionName, ConnectionStringSettingsFileName};
-			foreach(var fileName in filesToDelete)
+			foreach (var fileName in filesToDelete)
 				if (File.Exists(fileName))
 					File.Delete(fileName);
 		}
 
 		[Test]
-		public void GetEmptyVariantsSet_ShouldReturnNullConnectionStringVariantsSet()
+		public void GetEmptyAspect_ShouldReturnNullConfigurationAliasesEntity()
 		{
-			Assert.That(_loader.GetEmptyVariantsSet() == NullConnectionStringVariantsSet.Instance);
+			Assert.That(_loader.GetEmptyAspect() == NullConfigurationAliasesEntity.Instance);
 		}
 
 		[Test]
 		[TestCase(null)]
 		[TestCase("")]
-		public void LoadVariantsSetForSolution_NullOrEmptyFileName_ShouldReturnNullVariantsSet(string solutionPath)
+		public void LoadVariantsSetForSolution_NullOrEmptyFileName_ShouldReturnEmptyList(string solutionPath)
 		{
-			Assert.That(_loader.LoadVariantsSetForSolution(solutionPath) == NullConnectionStringVariantsSet.Instance);
+			Assert.That(!_loader.LoadAspectsForSolution(solutionPath).Any());
 		}
 
 		[Test]
-		public void LoadVariantsSetForSolution_SolutionFileDoesNotExist_ShouldReturnEmptySet()
+		public void LoadVariantsSetForSolution_SolutionFileDoesNotExist_ShouldReturnEmptyList()
 		{
 			//Arrange
 			GC.Collect();
@@ -68,7 +66,7 @@ namespace ConStringCat.Core.UnitTests.SettingsManagement
 			CreateValidSettingsFile();
 
 			//Assert
-			Assert.That(_loader.LoadVariantsSetForSolution(SolutionName) == NullConnectionStringVariantsSet.Instance);
+			Assert.That(!_loader.LoadAspectsForSolution(SolutionName).Any());
 		}
 
 		[Test]
@@ -78,32 +76,112 @@ namespace ConStringCat.Core.UnitTests.SettingsManagement
 			CreateValidSettingsFile();
 
 			//Act
-			var variantsSet = (ConnectionStringVariantsSetImpl)_loader.LoadVariantsSetForSolution(SolutionName);
+			var aspects = _loader.LoadAspectsForSolution(SolutionName)
+				.Cast<ConfigurationAspect>()
+				.ToList();
 
 			//Assert
-			Assert.That(variantsSet, Is.Not.Null);
-			Assert.That(variantsSet.Name, Is.EqualTo("First variants set"));
+			var firstAspect = new ConfigurationAspect("DB Connection string");
+			firstAspect.AddAlias("First string");
+			firstAspect.AddAlias("Second string");
+			firstAspect.AddAlias("Third string");
+			var conStrSet = new ConnectionStringVariantsSetImpl("Connection string");
+			conStrSet.AddVariant("First string", "connection string 1");
+			conStrSet.AddVariant("Second string", "connection string 2");
+			conStrSet.AddVariant("Third string", "connection string 3");
+			conStrSet.AddUpdater(new XmlFileConnectionStringUpdater(ToAbsolutePath("./SomeFolder/../../someFile.xml"),
+				"/catalog/book[@id='bk102']/price"));
+			conStrSet.AddUpdater(new JsonFileConnectionStringUpdater("R:/someJson.json", "$.store.book[0].title"));
+			firstAspect.AddVariantsSet(conStrSet);
+			var driverSet = new ConnectionStringVariantsSetImpl("Driver");
+			driverSet.AddVariant("First string", "driver 1");
+			driverSet.AddVariant("Second string", "driver 2");
+			driverSet.AddVariant("Third string", "driver 3");
+			driverSet.AddUpdater(new XmlFileConnectionStringUpdater(ToAbsolutePath("./SomeFolder/../../someFile.xml"),
+				"/catalog/book[@id='bk102']/author"));
+			driverSet.AddUpdater(new JsonFileConnectionStringUpdater("R:/someJson.json", "$.store.book[0].author"));
+			firstAspect.AddVariantsSet(driverSet);
 
-			CollectionAssert.AreEquivalent(variantsSet.Variants,
-				new Dictionary<string, string>
-				{
-					{"First item", "firstValueItem"},
-					{"Second item", "secondValueItem"},
-					{"third item", "thirdValueItem"}
-				});
-			Assert.That(variantsSet.Updaters.Count == 2);
+			var secondAspect = new ConfigurationAspect("Web service address");
+			secondAspect.AddAlias("First string");
+			secondAspect.AddAlias("Second string");
+			secondAspect.AddAlias("Third string");
+			var defaultAddrSet = new ConnectionStringVariantsSetImpl("Default set");
+			defaultAddrSet.AddVariant("First string", "address 1");
+			defaultAddrSet.AddVariant("Second string", "address 2");
+			defaultAddrSet.AddVariant("Third string", "address 3");
+			defaultAddrSet.AddUpdater(new XmlFileConnectionStringUpdater(ToAbsolutePath("./SomeFolder/../../someFile.xml"),
+				"/catalog/book[@id='bk102']/genre"));
+			defaultAddrSet.AddUpdater(new JsonFileConnectionStringUpdater("R:/someJson.json", "$.store.book[0].genre"));
+			secondAspect.AddVariantsSet(defaultAddrSet);
 
-			var xmlUpdater = variantsSet.Updaters.OfType<XmlFileConnectionStringUpdater>().First();
-			Assert.That(xmlUpdater.DocumentPath, Is.EqualTo(Path.Combine(Directory.GetCurrentDirectory(), "./SomeFolder/../../someFile.xml")));
-			Assert.That(xmlUpdater.XPath, Is.EqualTo("/catalog/book[@id='bk102']/price"));
+			CollectionAssert.IsNotEmpty(aspects);
+			aspects.ForEach(AssertAspectInDefaultState);
+			AssertAspectsEqual(firstAspect, aspects[0]);
+			AssertAspectsEqual(secondAspect, aspects[1]);
+		}
 
-			var jsonUpdater = variantsSet.Updaters.OfType<JsonFileConnectionStringUpdater>().First();
-			Assert.That(jsonUpdater.DocumentPath, Is.EqualTo("R:/someJson.json"));
-			Assert.That(jsonUpdater.JsonPath, Is.EqualTo("$.store.book[0].title"));
+		private string ToAbsolutePath(string path)
+		{
+			return Path.Combine(Directory.GetCurrentDirectory(), path);
+		}
+
+		private void AssertAspectInDefaultState(ConfigurationAspect aspect)
+		{
+			Assert.That(aspect.CurrentVariantAlias == aspect.Aliases.First());
+			foreach (var set in aspect.Sets)
+				Assert.That(set.CurrentVariantAlias == aspect.CurrentVariantAlias);
+		}
+
+		private void AssertAspectsEqual(ConfigurationAspect expected, ConfigurationAspect actual)
+		{
+			AssertConfigurationEntitiesEqual(expected, actual);
+			Assert.That(expected.Sets.Count == actual.Sets.Count);
+			foreach (var set in actual.Sets.Cast<ConnectionStringVariantsSetImpl>())
+			{
+				var set1 = set;
+				var actualSet = expected.Sets.Cast<ConnectionStringVariantsSetImpl>().FirstOrDefault(x => x.Name == set1.Name);
+				AssertSetsEqual(set1, actualSet);
+			}
+		}
+
+		private void AssertSetsEqual(ConnectionStringVariantsSetImpl expected, ConnectionStringVariantsSetImpl actual)
+		{
+			AssertConfigurationEntitiesEqual(expected, actual);
+			Assert.That(expected.Updaters.Count == actual.Updaters.Count);
+			foreach (var updater in actual.Updaters)
+				AssertUpdatersContainEqual(expected.Updaters, updater);
+		}
+
+		private void AssertUpdatersContainEqual(IReadOnlyList<ConnectionStringUpdater> updaters,
+			ConnectionStringUpdater updater)
+		{
+			if (updater is JsonFileConnectionStringUpdater)
+			{
+				AssertContainsUpdater(updaters, (JsonFileConnectionStringUpdater) updater,
+					(a, b) => a.DocumentPath == b.DocumentPath && a.JsonPath == b.JsonPath);
+			}
+			else if (updater is XmlFileConnectionStringUpdater)
+			{
+				AssertContainsUpdater(updaters, (XmlFileConnectionStringUpdater) updater,
+					(a, b) => a.DocumentPath == b.DocumentPath && a.XPath == b.XPath);
+			}
+		}
+
+		private void AssertContainsUpdater<TUpdater>(IEnumerable<ConnectionStringUpdater> updaters,
+			TUpdater updater, Func<TUpdater, TUpdater, bool> comparer)
+		{
+			Assert.That(updaters.OfType<TUpdater>().Count(x => comparer(x, updater)) > 0);
+		}
+
+		private void AssertConfigurationEntitiesEqual(ConfigurationAliasesEntity expected, ConfigurationAliasesEntity actual)
+		{
+			Assert.That(expected.Name == actual.Name);
+			CollectionAssert.AreEquivalent(expected.Aliases, actual.Aliases);
 		}
 
 		[Test]
-		public void LoadVariantsSetForSolution_SettingsFileViolatesSchema_ShouldThrowException()
+		public void LoadAspectsForSolution_SettingsFileViolatesSchema_ShouldThrowException()
 		{
 			//Arrange
 			CreateInvalidSettingsFile();
@@ -113,7 +191,7 @@ namespace ConStringCat.Core.UnitTests.SettingsManagement
 		}
 
 		[Test]
-		public void LoadVariantsSetForSolution_SettingsFileHasNotJsonFormat_ShouldThrowException()
+		public void LoadAspectsForSolution_SettingsFileHasNotJsonFormat_ShouldThrowException()
 		{
 			//Arrange
 			CreateSettingsFileWithInvalidJson();
@@ -123,30 +201,30 @@ namespace ConStringCat.Core.UnitTests.SettingsManagement
 		}
 
 		[Test]
-		public void LoadVariantsSetForSolution_SettingsFileDoesNotExist_ShouldReturnEmptySet()
+		public void LoadAspectsForSolution_SettingsFileDoesNotExist_ShouldReturnEmptyList()
 		{
 			//Act
-			var variantsSet = (ConnectionStringVariantsSetImpl)_loader.LoadVariantsSetForSolution(SolutionName);
+			var aspects = _loader.LoadAspectsForSolution(SolutionName);
 
 			//Assert
-			AssertSetEmpty(variantsSet);
+			CollectionAssert.IsEmpty(aspects);
 		}
 
 		[Test]
-		public void LoadVariantsSetForSolution_SettingsFileDoesNotExist_ShouldCreateDefaultFile()
+		public void LoadAspectsForSolution_SettingsFileDoesNotExist_ShouldCreateDefaultFile()
 		{
 			Assert.That(!File.Exists(ConnectionStringSettingsFileName));
-			var defaultSettings = _loader.LoadVariantsSetForSolution(SolutionName);
+			_loader.LoadAspectsForSolution(SolutionName);
 
 			Assert.That(File.Exists(ConnectionStringSettingsFileName));
-			var newSettings = (ConnectionStringVariantsSetImpl)_loader.LoadVariantsSetForSolution(SolutionName);
+			var newSettings = _loader.LoadAspectsForSolution(SolutionName);
 
-			AssertSetEmpty(newSettings);
+			CollectionAssert.IsEmpty(newSettings);
 		}
 
 		private void AssertLoadingThrowsException()
 		{
-			Assert.That(() => _loader.LoadVariantsSetForSolution(SolutionName),
+			Assert.That(() => _loader.LoadAspectsForSolution(SolutionName),
 				Throws.InstanceOf<VariantsSettingsLoadingException>());
 		}
 
@@ -166,12 +244,6 @@ namespace ConStringCat.Core.UnitTests.SettingsManagement
 		{
 			EmbeddedResourceInterop.WriteEmbeddedResourceToFile(
 				EmbeddedInvalidJsonFile, ConnectionStringSettingsFileName);
-		}
-
-		private static void AssertSetEmpty(ConnectionStringVariantsSetImpl variantsSet)
-		{
-			Assert.That(!variantsSet.Variants.Any());
-			Assert.That(!variantsSet.Updaters.Any());
 		}
 	}
 }

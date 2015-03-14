@@ -10,11 +10,10 @@ namespace ConStringCat.Core.VSInterop
 	public sealed class OleMenuCommandBinder : VSCommandBinder
 	{
 		private static readonly IntPtr MinusOneIntPtr = new IntPtr(-1);
-
 		private readonly MethodInfo _callback;
 		private readonly object[] _callbackEmptyArgs;
 		private readonly object _callbackTarget;
-		private Func<bool> _availabilityChecker; 
+		private Func<bool> _availabilityChecker;
 
 		private OleMenuCommandBinder(CommandID commandId, object callbackTarget, MethodInfo callback)
 		{
@@ -84,7 +83,7 @@ namespace ConStringCat.Core.VSInterop
 
 		private void CommandOnBeforeQueryStatus(object sender, EventArgs eventArgs)
 		{
-			var senderCommand = (OleMenuCommand)sender;
+			var senderCommand = (OleMenuCommand) sender;
 			Contract.Assert(senderCommand == NativeCommand);
 
 			if (_availabilityChecker != null)

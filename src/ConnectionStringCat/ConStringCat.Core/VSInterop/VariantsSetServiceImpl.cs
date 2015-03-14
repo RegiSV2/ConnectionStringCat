@@ -8,14 +8,10 @@ namespace ConStringCat.Core.VSInterop
 	public sealed class VariantsSetServiceImpl : VariantsSetService
 	{
 		private readonly DTE _solutionInteropObject;
-
 		private readonly object _syncRoot = new object();
-
 		private readonly VariantsSettingsLoader _variantsSettingsLoader;
-
 		private string _loadedSolutionPath;
-
-		private ConnectionStringVariantsSet _workingSet;
+		private ConfigurationAliasesEntity _workingEntity;
 
 		public VariantsSetServiceImpl(DTE solutionInteropObject, VariantsSettingsLoader variantsSettingsLoader)
 		{
@@ -23,6 +19,23 @@ namespace ConStringCat.Core.VSInterop
 			Contract.Requires(variantsSettingsLoader != null);
 			_solutionInteropObject = solutionInteropObject;
 			_variantsSettingsLoader = variantsSettingsLoader;
+		}
+
+		private ConfigurationAliasesEntity WorkingSet
+		{
+			get
+			{
+				if (Solution.IsOpen)
+					LoadWorkingSetIfNotLoaded();
+				else
+					RemoveWorkingSetIfNotRemoved();
+				return _workingEntity;
+			}
+		}
+
+		private Solution Solution
+		{
+			get { return _solutionInteropObject.Solution; }
 		}
 
 		public string[] GetAliases()
@@ -42,23 +55,6 @@ namespace ConStringCat.Core.VSInterop
 			get { return Solution.IsOpen; }
 		}
 
-		private ConnectionStringVariantsSet WorkingSet
-		{
-			get
-			{
-				if (Solution.IsOpen)
-					LoadWorkingSetIfNotLoaded();
-				else
-					RemoveWorkingSetIfNotRemoved();
-				return _workingSet;
-			}
-		}
-
-		private Solution Solution
-		{
-			get { return _solutionInteropObject.Solution; }
-		}
-
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		private void LoadWorkingSetIfNotLoaded()
 		{
@@ -69,7 +65,8 @@ namespace ConStringCat.Core.VSInterop
 					if (WorkingSetChanged())
 					{
 						_loadedSolutionPath = Solution.FileName;
-						_workingSet = _variantsSettingsLoader.LoadVariantsSetForSolution(Solution.FileName);
+						_workingEntity = _variantsSettingsLoader.LoadAspectsForSolution(Solution.FileName).FirstOrDefault();
+							//only one aspect supported yet
 					}
 				}
 			}
@@ -77,7 +74,7 @@ namespace ConStringCat.Core.VSInterop
 
 		private bool WorkingSetChanged()
 		{
-			return _workingSet == null || _loadedSolutionPath != Solution.FileName;
+			return _workingEntity == null || _loadedSolutionPath != Solution.FileName;
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -87,7 +84,7 @@ namespace ConStringCat.Core.VSInterop
 			{
 				if (!Solution.IsOpen)
 				{
-					_workingSet = _variantsSettingsLoader.GetEmptyVariantsSet();
+					_workingEntity = _variantsSettingsLoader.GetEmptyAspect();
 					_loadedSolutionPath = null;
 				}
 			}

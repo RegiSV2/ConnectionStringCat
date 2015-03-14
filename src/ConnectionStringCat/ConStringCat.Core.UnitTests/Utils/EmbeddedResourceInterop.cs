@@ -1,21 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ConStringCat.Core.UnitTests.Utils
 {
 	/// <summary>
-	/// Provides operations for work with embedded resources
+	///     Provides operations for work with embedded resources
 	/// </summary>
 	public static class EmbeddedResourceInterop
 	{
 		/// <summary>
-		/// Writes embedded resource to external file
+		///     Writes embedded resource to external file
 		/// </summary>
 		public static void WriteEmbeddedResourceToFile(string embeddedResourceName, string fileName)
 		{

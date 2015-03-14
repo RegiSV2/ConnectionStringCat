@@ -5,11 +5,9 @@ namespace ConStringCat.Core.VSInterop
 	[ContractClass(typeof (VariantsSetServiceContracts))]
 	public interface VariantsSetService
 	{
-		string[] GetAliases();
-
-		string GetSetCurrentVariant(string selectedAlias);
-
 		bool IsServiceAvailable { get; }
+		string[] GetAliases();
+		string GetSetCurrentVariant(string selectedAlias);
 	}
 
 	[ContractClassFor(typeof (VariantsSetService))]

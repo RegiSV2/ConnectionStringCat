@@ -1,12 +1,10 @@
 ﻿using System.Collections.Generic;
-using System.Diagnostics.Contracts;
-using ConStringCat.Core.Model;
-using ConStringCat.Core.VSInterop;
 using System.IO;
 using System.Linq;
-using System.Reflection;
+using ConStringCat.Core.Model;
 using ConStringCat.Core.Utils;
 using ConStringCat.Core.ValueUpdating;
+using ConStringCat.Core.VSInterop;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Schema;
@@ -16,33 +14,20 @@ namespace ConStringCat.Core.SettingsManagement
 	public class VariantsSettingsLoaderImpl : VariantsSettingsLoader
 	{
 		public const string SettingsFileSuffix = ".ConStrCat.json";
-
 		private const string JsonUpdaterType = "jsonPath";
-
 		private const string XmlUpdaterType = "xPath";
-
-		private const string SetsProperty = "sets";
-
+		private const string AspectsProperty = "aspects";
+		private const string SetsProperty = "valueSets";
 		private const string NameProperty = "name";
-
 		private const string VariantsProperty = "variants";
-
 		private const string UpdatersProperty = "updaters";
-
 		private const string VariantAliasProperty = "alias";
-
 		private const string VariantValueProperty = "value";
-
 		private const string UpdaterTypeProperty = "type";
-
 		private const string UpdaterXPathProperty = "xPath";
-
 		private const string UpdaterJsonPathProperty = "jsonPath";
-
 		private const string UpdaterFilePathProperty = "filePath";
-
 		private const string SettingsSchemaResourceName = "ConStringCat.Core.SettingsManagement.VariantSettingsSchema.json";
-
 		private const string DefaultSettingsResourceName = "ConStringCat.Core.SettingsManagement.DefaultSettings.json";
 
 		private const string UnsupportedUpdaterTypeMsg =
@@ -56,20 +41,19 @@ namespace ConStringCat.Core.SettingsManagement
 
 		private JsonSchema _schema;
 
-		public ConnectionStringVariantsSet GetEmptyVariantsSet()
+		public ConfigurationAliasesEntity GetEmptyAspect()
 		{
-			return NullConnectionStringVariantsSet.Instance;
+			return NullConfigurationAliasesEntity.Instance;
 		}
 
-		public ConnectionStringVariantsSet LoadVariantsSetForSolution(string solutionFileName)
+		public IList<ConfigurationAliasesEntity> LoadAspectsForSolution(string solutionFileName)
 		{
 			if (string.IsNullOrEmpty(solutionFileName) || !File.Exists(solutionFileName))
-				return GetEmptyVariantsSet();
+				return new List<ConfigurationAliasesEntity>();
 
 			var settingsFileName = GetSettingsFileName(solutionFileName);
 			var settings = LoadSettings(settingsFileName);
-			var setSettings = settings[SetsProperty][0]; //Only one set supported yet
-			return InitVariantsSet(setSettings);
+			return InitConfigurationAspects(settings[AspectsProperty]);
 		}
 
 		private string GetSettingsFileName(string solutionFileName)
@@ -131,12 +115,29 @@ namespace ConStringCat.Core.SettingsManagement
 			return _schema;
 		}
 
+		private IList<ConfigurationAliasesEntity> InitConfigurationAspects(JToken aspectsArray)
+		{
+			return aspectsArray.Select(InitConfigurationAspect).ToList();
+		}
+
+		private ConfigurationAliasesEntity InitConfigurationAspect(JToken aspectToken)
+		{
+			var aspect = new ConfigurationAspect(ReadValue(aspectToken, NameProperty));
+
+			foreach (var variant in aspectToken[VariantsProperty])
+				aspect.AddAlias(variant.Value<string>());
+			foreach (var set in aspectToken[SetsProperty].Select(InitVariantsSet))
+				aspect.AddVariantsSet(set);
+
+			return aspect;
+		}
+
 		private ConnectionStringVariantsSet InitVariantsSet(JToken setSettings)
 		{
 			var variantsSet = new ConnectionStringVariantsSetImpl(ReadValue(setSettings, NameProperty));
 
 			foreach (var variant in setSettings[VariantsProperty])
-				variantsSet.AddVariant(ReadValue(variant, VariantAliasProperty),ReadValue(variant, VariantValueProperty));
+				variantsSet.AddVariant(ReadValue(variant, VariantAliasProperty), ReadValue(variant, VariantValueProperty));
 			foreach (var updaterSettings in setSettings[UpdatersProperty])
 				variantsSet.AddUpdater(CreateUpdater(updaterSettings));
 

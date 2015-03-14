@@ -36,7 +36,7 @@ namespace ConStringCat.Core.UnitTests.VSInterop.Utils
 
 		public static MethodInfo StaticCallbackMethodInfo()
 		{
-			return typeof (TestBinderCallback).GetMethod("StaticCallback", 
+			return typeof (TestBinderCallback).GetMethod("StaticCallback",
 				BindingFlags.NonPublic | BindingFlags.Static);
 		}
 

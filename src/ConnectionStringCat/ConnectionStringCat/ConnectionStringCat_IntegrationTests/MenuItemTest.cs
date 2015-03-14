@@ -1,57 +1,42 @@
-﻿using System;
+﻿using System.ComponentModel.Design;
 using System.Globalization;
-using System.ComponentModel.Design;
+using ConnectionStringCat_IntegrationTests.IntegrationTest_Library;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Microsoft.VisualStudio.OLE.Interop;
-using Microsoft.VisualStudio.Shell.Interop;
-using Microsoft.VisualStudio.Shell;
 using Microsoft.VSSDK.Tools.VsIdeTesting;
+using SergeyUskov.ConnectionStringCat;
 
 namespace ConnectionStringCat_IntegrationTests
 {
-	[TestClass()]
+	[TestClass]
 	public class MenuItemTest
 	{
-		private delegate void ThreadInvoker();
-
-		private TestContext testContextInstance;
+		/// <summary>
+		///     Gets or sets the test context which provides
+		///     information about and functionality for the current test run.
+		/// </summary>
+		public TestContext TestContext { get; set; }
 
 		/// <summary>
-		///Gets or sets the test context which provides
-		///information about and functionality for the current test run.
-		///</summary>
-		public TestContext TestContext
-		{
-			get
-			{
-				return testContextInstance;
-			}
-			set
-			{
-				testContextInstance = value;
-			}
-		}
-
-		/// <summary>
-		///A test for lauching the command and closing the associated dialogbox
-		///</summary>
-		[TestMethod()]
+		///     A test for lauching the command and closing the associated dialogbox
+		/// </summary>
+		[TestMethod]
 		[HostType("VS IDE")]
 		public void LaunchCommand()
 		{
-			UIThreadInvoker.Invoke((ThreadInvoker)delegate()
+			UIThreadInvoker.Invoke((ThreadInvoker) delegate
 			{
-				CommandID menuItemCmd = new CommandID(SergeyUskov.ConnectionStringCat.GuidList.guidConnectionStringCatCmdSet, (int)SergeyUskov.ConnectionStringCat.PkgCmdIdList.SetupConStringsCmdId);
+				var menuItemCmd = new CommandID(GuidList.guidConnectionStringCatCmdSet, (int) PkgCmdIdList.SetupConStringsCmdId);
 
 				// Create the DialogBoxListener Thread.
-				string expectedDialogBoxText = string.Format(CultureInfo.CurrentCulture, "{0}\n\nInside {1}.MenuItemCallback()", "ConnectionStringCat", "SergeyUskov.ConnectionStringCat.ConnectionStringCatPackage");
-				DialogBoxPurger purger = new DialogBoxPurger(NativeMethods.IDOK, expectedDialogBoxText);
+				var expectedDialogBoxText = string.Format(CultureInfo.CurrentCulture, "{0}\n\nInside {1}.MenuItemCallback()",
+					"ConnectionStringCat", "SergeyUskov.ConnectionStringCat.ConnectionStringCatPackage");
+				var purger = new DialogBoxPurger(NativeMethods.IDOK, expectedDialogBoxText);
 
 				try
 				{
 					purger.Start();
 
-					TestUtils testUtils = new TestUtils();
+					var testUtils = new TestUtils();
 					testUtils.ExecuteCommand(menuItemCmd);
 				}
 				finally
@@ -61,5 +46,6 @@ namespace ConnectionStringCat_IntegrationTests
 			});
 		}
 
+		private delegate void ThreadInvoker();
 	}
 }

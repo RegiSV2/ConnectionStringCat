@@ -3,19 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using ConStringCat.Core.Model;
 using ConStringCat.Core.UnitTests.Utils;
-using ConStringCat.Core.VSInterop;
 using Moq;
 using NUnit.Framework;
 
-namespace ConStringCat.Core.UnitTests.VSInterop
+namespace ConStringCat.Core.UnitTests.Model
 {
 	[TestFixture]
 	public class ConnectionStringVariantsSetTests
 	{
 		private const string VariantsSetName = "Some name";
-
 		private const string ConnectionStringUpdateFailReason = "Some reason";
-
 		private ConnectionStringVariantsSetImpl _variantsSet;
 
 		private void SelectLastVariant()
@@ -63,7 +60,7 @@ namespace ConStringCat.Core.UnitTests.VSInterop
 			var aliases = _variantsSet.Aliases;
 			//Assert
 			foreach (var idx in Enumerable.Range(0, 3))
-				Assert.That(aliases[idx] == VariantsCreator.VariantAlias(idx));
+				Assert.That(aliases[idx] == VariantsCreator.CreateAlias(idx));
 		}
 
 		[Test]
@@ -98,7 +95,7 @@ namespace ConStringCat.Core.UnitTests.VSInterop
 		[Test]
 		public void SetCurrentVariant_SetNotOwnedVariant_ShouldThrowArgumentException()
 		{
-			Assert.That(() => _variantsSet.SetCurrentVariant(VariantsCreator.VariantAlias(0)),
+			Assert.That(() => _variantsSet.SetCurrentVariant(VariantsCreator.CreateAlias(0)),
 				Throws.ArgumentException);
 		}
 
@@ -180,7 +177,10 @@ namespace ConStringCat.Core.UnitTests.VSInterop
 		private KeyValuePair<string, string> InitVariants()
 		{
 			foreach (var idx in Enumerable.Range(0, 3))
-				VariantsCreator.AddVariant(_variantsSet, idx);
+			{
+				var variant = VariantsCreator.CreateVariant(idx);
+				_variantsSet.AddVariant(variant.Key, variant.Value);
+			}
 			return _variantsSet.Variants.Last();
 		}
 

@@ -1,14 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Autofac;
-using ConStringCat.Core;
 using ConStringCat.Core.SettingsManagement;
 using ConStringCat.Core.VSInterop;
 using EnvDTE;
-using Microsoft.VisualStudio.Shell;
 
 namespace SergeyUskov.ConnectionStringCat
 {

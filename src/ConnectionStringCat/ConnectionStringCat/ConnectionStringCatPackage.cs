@@ -3,13 +3,9 @@ using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.Diagnostics;
 using System.Globalization;
-using System.Linq;
 using System.Runtime.InteropServices;
 using Autofac;
-using ConStringCat.Core.Model;
-using ConStringCat.Core.ValueUpdating;
 using ConStringCat.Core.VSInterop;
-using EnvDTE;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
@@ -45,7 +41,35 @@ namespace SergeyUskov.ConnectionStringCat
 		/// </summary>
 		public ConnectionStringCatPackage()
 		{
-			Debug.WriteLine(string.Format(CultureInfo.CurrentCulture, "Entering constructor for: {0}", ToString()));
+			Debug.WriteLine(CultureInfo.CurrentCulture, string.Format("Entering constructor for: {0}", ToString()));
+		}
+
+		/////////////////////////////////////////////////////////////////////////////
+		// Overridden Package Implementation
+
+		/// <summary>
+		///     This function is the callback used to execute a command when the a menu item is clicked.
+		///     See the Initialize method to see how the menu item is associated to this function using
+		///     the OleMenuCommandService service and the MenuCommand class.
+		/// </summary>
+		private void MenuItemCallback()
+		{
+			// Show a Message Box to prove we were here
+			var uiShell = (IVsUIShell) GetService(typeof (SVsUIShell));
+			var clsid = Guid.Empty;
+			int result;
+			ErrorHandler.ThrowOnFailure(uiShell.ShowMessageBox(
+				0,
+				ref clsid,
+				"ConnectionStringCat",
+				string.Format(CultureInfo.CurrentCulture, "Inside {0}.MenuItemCallback()", ToString()),
+				string.Empty,
+				0,
+				OLEMSGBUTTON.OLEMSGBUTTON_OK,
+				OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST,
+				OLEMSGICON.OLEMSGICON_INFO,
+				0, // false
+				out result));
 		}
 
 		#region Package Members
@@ -65,7 +89,7 @@ namespace SergeyUskov.ConnectionStringCat
 
 		private void BindCommands(IEnumerable<VSCommandBinder> commandBinders)
 		{
-			var mcs = GetService(typeof(IMenuCommandService)) as OleMenuCommandService;
+			var mcs = GetService(typeof (IMenuCommandService)) as OleMenuCommandService;
 			if (null == mcs) return;
 
 			foreach (var commandBinder in commandBinders)
@@ -79,7 +103,7 @@ namespace SergeyUskov.ConnectionStringCat
 			var service = IoC.Container.Resolve<VariantsSetService>();
 			var commandFactory = GetCommandFactory();
 
-			yield return commandFactory.BindToOleMenuCommand((int) PkgCmdIdList.SetupConStringsCmdId, 
+			yield return commandFactory.BindToOleMenuCommand((int) PkgCmdIdList.SetupConStringsCmdId,
 				() => new Action(MenuItemCallback));
 
 			var comboBoxCommand = commandFactory.BindToOleMenuCommand((int) PkgCmdIdList.ConnectionStringsListId,
@@ -103,33 +127,5 @@ namespace SergeyUskov.ConnectionStringCat
 		}
 
 		#endregion
-
-		/////////////////////////////////////////////////////////////////////////////
-		// Overridden Package Implementation
-
-		/// <summary>
-		///     This function is the callback used to execute a command when the a menu item is clicked.
-		///     See the Initialize method to see how the menu item is associated to this function using
-		///     the OleMenuCommandService service and the MenuCommand class.
-		/// </summary>
-		private void MenuItemCallback()
-		{
-			// Show a Message Box to prove we were here
-			var uiShell = (IVsUIShell) GetService(typeof (SVsUIShell));
-			Guid clsid = Guid.Empty;
-			int result;
-			ErrorHandler.ThrowOnFailure(uiShell.ShowMessageBox(
-				0,
-				ref clsid,
-				"ConnectionStringCat",
-				string.Format(CultureInfo.CurrentCulture, "Inside {0}.MenuItemCallback()", ToString()),
-				string.Empty,
-				0,
-				OLEMSGBUTTON.OLEMSGBUTTON_OK,
-				OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST,
-				OLEMSGICON.OLEMSGICON_INFO,
-				0, // false
-				out result));
-		}
 	}
 }

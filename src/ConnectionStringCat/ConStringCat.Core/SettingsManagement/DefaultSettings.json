@@ -1,9 +1,3 @@
 ﻿{
-	"sets": [
-		{
-			"name": "Connection string",
-			"variants": [],
-			"updaters": []
-		}
-	]
+	"aspects": []
 }

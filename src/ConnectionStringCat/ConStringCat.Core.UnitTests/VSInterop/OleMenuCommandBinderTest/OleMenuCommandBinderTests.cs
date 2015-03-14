@@ -1,5 +1,5 @@
-using System;
 using ConStringCat.Core.UnitTests.VSInterop.Utils;
+using ConStringCat.Core.VSInterop;
 using Microsoft.VisualStudio.Shell;
 using Moq;
 using NUnit.Framework;
@@ -9,25 +9,29 @@ namespace ConStringCat.Core.UnitTests.VSInterop.OleMenuCommandBinderTest
 	public class OleMenuCommandBinderTests : CommandBinderTestsBase
 	{
 		protected Mock<ITestBinderCallback> Callback;
-
-		protected Core.VSInterop.OleMenuCommandBinder CommandBinder;
+		protected OleMenuCommandBinder CommandBinder;
 
 		protected void BuildBinderWithInstanceCallback()
 		{
 			Callback = TestBinderCallback.CreateMock();
-			CommandBinder = Core.VSInterop.OleMenuCommandBinder.BindToInstanceCallback(CommandId,
+			CommandBinder = OleMenuCommandBinder.BindToInstanceCallback(CommandId,
 				Callback.Object, TestBinderCallback.CallbackMethod());
 		}
 
 		protected void BuildBinderWithStaticCallback()
 		{
-			CommandBinder = Core.VSInterop.OleMenuCommandBinder.BindToStaticCallback(CommandId,
+			CommandBinder = OleMenuCommandBinder.BindToStaticCallback(CommandId,
 				TestBinderCallback.StaticCallbackMethodInfo());
 		}
 	}
 
 	public class SetCommandAvailabilityCheckerOleMenuCommandBinderTests : OleMenuCommandBinderTests
 	{
+		private OleMenuCommand BinderNativeOleCommand
+		{
+			get { return (OleMenuCommand) CommandBinder.NativeCommand; }
+		}
+
 		[Test]
 		public void SetCommandAvailabilityChecker_NullArgument_ShouldThrowAnException()
 		{
@@ -50,12 +54,6 @@ namespace ConStringCat.Core.UnitTests.VSInterop.OleMenuCommandBinderTest
 			var status = BinderNativeOleCommand.OleStatus;
 			//Assert
 			Assert.That(BinderNativeOleCommand.Enabled, Is.EqualTo(checkResult));
-
-		}
-
-		private OleMenuCommand BinderNativeOleCommand
-		{
-			get { return (OleMenuCommand) CommandBinder.NativeCommand; }
 		}
 	}
 }

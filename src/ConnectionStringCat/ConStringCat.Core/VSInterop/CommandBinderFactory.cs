@@ -11,9 +11,7 @@ namespace ConStringCat.Core.VSInterop
 	public sealed class CommandBinderFactory
 	{
 		private const string FactoryInitializedMsg = "You must set commandsGuid before calling factory methods";
-
 		private Guid _commandsGuid;
-
 		private bool _isInitialized;
 
 		public VSCommandBinder BindToOleMenuCommand(int commandId,
@@ -52,7 +50,7 @@ namespace ConStringCat.Core.VSInterop
 		{
 			var lambda = Expression.Lambda(methodCallExpression.Arguments.Last(),
 				callback.Parameters);
-			return lambda.Compile().DynamicInvoke(new object[0]);
+			return lambda.Compile().DynamicInvoke();
 		}
 
 		public void SetCommandsGuid(Guid commandsGuid)

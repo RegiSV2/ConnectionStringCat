@@ -12,9 +12,7 @@ namespace ConStringCat.Core.UnitTests.ValueUpdating
 	public class XmlFileConnectionStringUpdaterTests
 	{
 		private const string TestDocumentPath = "xmlfile.xml";
-
 		private const string ValidXPath = "/catalog";
-
 		private const string ValidDocumentPath = "someFile.xml";
 
 		[SetUp]
@@ -27,7 +25,7 @@ namespace ConStringCat.Core.UnitTests.ValueUpdating
 		[TearDown]
 		public void TearDown()
 		{
-			if(File.Exists(TestDocumentPath))
+			if (File.Exists(TestDocumentPath))
 				File.Delete(TestDocumentPath);
 		}
 

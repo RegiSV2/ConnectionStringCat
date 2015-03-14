@@ -2,65 +2,90 @@
 	"title": "VariantsSettingsSchema",
 	"type": "object",
 	"properties": {
-		"sets": {
-			"title": "Array of variants sets",
+		"aspects": {
+			"description": "Array of configuration aspects",
 			"type": "array",
-			"minItems": 1,
-			"required":  "true",
+			"required": "true",
 			"items": {
-				"title": "VariantsSet",
+				"title": "ConfigurationAspect",
 				"type": "object",
-				"required": "true",
 				"properties": {
 					"name": {
-						"description": "Name of set",
+						"description": "Name of configuration aspect",
 						"type": "string",
 						"required": "true"
 					},
 					"variants": {
-						"description": "Variants of set",
+						"description": "Names of available variants of configuration aspect",
 						"type": "array",
-						"minItems": 0,
-						"items": {
-							"title": "Variant",
-							"type": "object",
-							"properties": {
-								"alias": {
-									"description": "variant alias",
-									"type": "string",
-									"required": "true"
-								},
-								"value": {
-									"description": "variant value",
-									"type": "string",
-									"required": "true"
-								}
+						"items": [
+							{
+								"type": "string"
 							}
-						}
+						]
 					},
-					"updaters": {
-						"description": "Updaters of connection string values",
+					"valueSets": {
+						"description": "Array of value sets of configuration aspect",
 						"type": "array",
-						"minItems": 0,
+						"minItems": 1,
+						"required": "true",
 						"items": {
-							"title": "Updater",
+							"title": "VariantsSet",
 							"type": "object",
+							"required": "true",
 							"properties": {
-								"type": {
-									"description": "type of updater",
+								"name": {
+									"description": "Name of set",
 									"type": "string",
 									"required": "true"
 								},
-								"filePath": {
-									"description": "path to file that should be updated",
-									"type": "string"
+								"variants": {
+									"description": "Variants of set",
+									"type": "array",
+									"minItems": 0,
+									"items": {
+										"title": "Variant",
+										"type": "object",
+										"properties": {
+											"alias": {
+												"description": "variant alias",
+												"type": "string",
+												"required": "true"
+											},
+											"value": {
+												"description": "variant value",
+												"type": "string",
+												"required": "true"
+											}
+										}
+									}
 								},
-								"xPath": {
-									"description": "xPath to xml nodes to update",
-									"type": "string"
-								},
-								"jsonPath": { 
-									"description": "jsonPath to s"
+								"updaters": {
+									"description": "Updaters of connection string values",
+									"type": "array",
+									"minItems": 0,
+									"items": {
+										"title": "Updater",
+										"type": "object",
+										"properties": {
+											"type": {
+												"description": "type of updater",
+												"type": "string",
+												"required": "true"
+											},
+											"filePath": {
+												"description": "path to file that should be updated",
+												"type": "string"
+											},
+											"xPath": {
+												"description": "xPath to xml nodes to update",
+												"type": "string"
+											},
+											"jsonPath": {
+												"description": "jsonPath to s"
+											}
+										}
+									}
 								}
 							}
 						}
