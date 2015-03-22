@@ -6,9 +6,13 @@
 		<Identity Id="8d165b01-e0c7-48c4-a99f-beb0f25dda96" Version="1.0" Language="en-US" Publisher="Sergey Uskov" />
 		<DisplayName>ConnectionStringCat</DisplayName>
 		<Description>This package provides an easy way to switch connection strings in configs across the solution</Description>
+		<MoreInfo>https://github.com/RegiSV2/ConnectionStringCat</MoreInfo>
+		<License>LICENSE.txt</License>
+		<ReleaseNotes>Initial release</ReleaseNotes>
+		<Tags>Configuration Switching ConnectionString</Tags>
 	</Metadata>
 	<Installation InstalledByMsi="false">
-		<InstallationTarget Id="Microsoft.VisualStudio.Pro" Version="[12.0]" />
+		<InstallationTarget Version="[11.0,13.0)" Id="Microsoft.VisualStudio.Pro" />
 	</Installation>
 	<Dependencies>
 		<Dependency Id="Microsoft.Framework.NDP" DisplayName="Microsoft .NET Framework" d:Source="Manual" Version="[4.5,)" />
