@@ -106,6 +106,18 @@ namespace SergeyUskov.ConnectionStringCat
 			yield return commandFactory.BindToOleMenuCommand((int) PkgCmdIdList.SetupConStringsCmdId,
 				() => new Action(MenuItemCallback));
 
+			var variantsComboBoxCommand = commandFactory.BindToOleMenuCommand((int)PkgCmdIdList.VariantsListId,
+				() => new Func<string[]>(service.GetAspects));
+			variantsComboBoxCommand.SetCommandAvailabilityChecker(
+				() => service.IsServiceAvailable);
+			yield return variantsComboBoxCommand;
+
+			var variantsComboSetterCommand = commandFactory.BindToOleMenuCommand((int)PkgCmdIdList.VariantsCombo,
+				() => new Func<string, string>(service.GetSetCurrentAspect));
+			variantsComboSetterCommand.SetCommandAvailabilityChecker(
+				() => service.IsServiceAvailable);
+			yield return variantsComboSetterCommand;
+
 			var comboBoxCommand = commandFactory.BindToOleMenuCommand((int) PkgCmdIdList.ConnectionStringsListId,
 				() => new Func<string[]>(service.GetAliases));
 			comboBoxCommand.SetCommandAvailabilityChecker(

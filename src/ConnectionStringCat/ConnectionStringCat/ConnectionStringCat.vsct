@@ -69,28 +69,37 @@
 							<CommandFlag>DynamicVisibility</CommandFlag>
 					If you do not want an image next to your command, remove the Icon node /> -->
 
-			<Button guid="guidConnectionStringCatCmdSet" id="setupConStringsCmdId" priority="0x0100" type="Button">
+			<!--<Button guid="guidConnectionStringCatCmdSet" id="setupConStringsCmdId" priority="0x0100" type="Button">
 				<Parent guid="guidConnectionStringCatCmdSet" id="toolbarGroupId" />
 				<Icon guid="guidImages" id="bmpPicSearch" />
 				<Strings>
 					<ButtonText>Setup connection strings</ButtonText>
 				</Strings>
-			</Button>
+			</Button>-->
 
 
 
 		</Buttons>
 
 		<Combos>
-			<Combo guid="guidConnectionStringCatCmdSet" id="connectionStringsCombo" defaultWidth="150" 
-						 priority="1" type="DropDownCombo" idCommandList="connectionStringsListId">
+			<Combo guid="guidConnectionStringCatCmdSet" id="variantsCombo" defaultWidth="150"
+						 priority="1" type="DropDownCombo" idCommandList="variantsListId">
 				<Parent guid="guidConnectionStringCatCmdSet" id="toolbarGroupId" />
 				<CommandFlag>DynamicVisibility</CommandFlag>
-				<CommandFlag>IconAndText</CommandFlag>
 				<Strings>
-					<ButtonText>Database</ButtonText>
+					<ButtonText>Aspects</ButtonText>
 					<CommandName>Connection strings list</CommandName>
-					<ToolTipText>Select a connection string or add a new one</ToolTipText>
+					<ToolTipText>Configuration aspect</ToolTipText>
+				</Strings>
+			</Combo>
+			<Combo guid="guidConnectionStringCatCmdSet" id="connectionStringsCombo" defaultWidth="150" 
+						 priority="2" type="DropDownCombo" idCommandList="connectionStringsListId">
+				<Parent guid="guidConnectionStringCatCmdSet" id="toolbarGroupId" />
+				<CommandFlag>DynamicVisibility</CommandFlag>
+				<Strings>
+					<ButtonText>Current aspect</ButtonText>
+					<CommandName>Values list</CommandName>
+					<ToolTipText>Configuration value</ToolTipText>
 				</Strings>
 			</Combo>
 		</Combos>
@@ -122,6 +131,8 @@
 			<IDSymbol name="setupConStringsCmdId" value="0x0100" />
 			<IDSymbol name="connectionStringsCombo" value="0x0101"/>
 			<IDSymbol name="connectionStringsListId" value="0x0102"/>
+			<IDSymbol name="variantsCombo" value="0x0103"/>
+			<IDSymbol name="variantsListId" value="0x0104"/>
 			
 			<IDSymbol name="toolbarId" value="0x0150" />
 			<IDSymbol name="toolbarGroupId" value="0x0151" />

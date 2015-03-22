@@ -20,12 +20,17 @@ namespace ConStringCat.Core.UnitTests.Utils
 
 		public static KeyValuePair<string, string> CreateVariant(int aliasIndex)
 		{
-			return new KeyValuePair<string, string>(CreateAlias(aliasIndex), VariantStrValue);
+			return new KeyValuePair<string, string>(CreateAlias(aliasIndex), CreateVariantValue(aliasIndex));
 		}
 
 		public static string CreateAlias(int aliasIndex)
 		{
 			return VariantAliasName + aliasIndex;
+		}
+
+		public static string CreateVariantValue(int valueIndex)
+		{
+			return VariantStrValue + valueIndex;
 		}
 	}
 }

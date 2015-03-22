@@ -14,6 +14,11 @@ namespace ConStringCat.Core.VSInterop
 		///     Returns all variants registered at set
 		/// </summary>
 		IReadOnlyDictionary<string, string> Variants { get; }
+
+		/// <summary>
+		/// Refreshes currently selected variant
+		/// </summary>
+		void RefreshSelectedVariant();
 	}
 
 	[ContractClassFor(typeof (ConfigurationVariantsSet))]
@@ -47,5 +52,8 @@ namespace ConStringCat.Core.VSInterop
 		{
 			throw new NotImplementedException();
 		}
+
+		public void RefreshSelectedVariant()
+		{ }
 	}
 }

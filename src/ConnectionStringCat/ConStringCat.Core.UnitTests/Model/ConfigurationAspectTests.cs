@@ -121,6 +121,20 @@ namespace ConStringCat.Core.UnitTests.Model
 				Throws.ArgumentException);
 		}
 
+		[Test]
+		public void RefreshSetVariants_ShouldRefreshUpdatersInAllSets()
+		{
+			//Arrange
+			var variantsSet = new Mock<ConfigurationVariantsSet>();
+			_configurationAspect.AddVariantsSet(variantsSet.Object);
+
+			//Act
+			_configurationAspect.RefreshSetVariants();
+
+			//Assert
+			variantsSet.Verify(x => x.RefreshSelectedVariant(), Times.Once);
+		}
+
 		private Mock<ConfigurationVariantsSet> AddVariantsSetMock(IReadOnlyList<string> containedAliases,
 			string expectedAlias)
 		{

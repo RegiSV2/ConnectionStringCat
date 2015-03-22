@@ -8,6 +8,7 @@ using ConStringCat.Core.UnitTests.Utils;
 using ConStringCat.Core.ValueUpdating;
 using ConStringCat.Core.VSInterop;
 using NUnit.Framework;
+using Moq;
 
 namespace ConStringCat.Core.UnitTests.SettingsManagement
 {
@@ -23,11 +24,18 @@ namespace ConStringCat.Core.UnitTests.SettingsManagement
 		private const string EmbeddedInvalidSettingsFile = "ConStringCat.Core.UnitTests.SampleInvalidVariantSettings.json";
 		private const string EmbeddedInvalidJsonFile = "ConStringCat.Core.UnitTests.SampleInvalidJson.json";
 		private VariantsSettingsLoaderImpl _loader;
+		private Mock<ConfigurationValueUpdaterFactory> _updaterFactory;
 
 		[SetUp]
 		public void SetUp()
 		{
-			_loader = new VariantsSettingsLoaderImpl();
+			_updaterFactory = new Mock<ConfigurationValueUpdaterFactory>();
+			_updaterFactory.Setup(x=> x.CreateXmlUpdater(It.IsAny<string>(), It.IsAny<string>()))
+				.Returns(new Mock<ConfigurationValueUpdater>().Object).Verifiable();
+			_updaterFactory.Setup(x=> x.CreateJsonUpdater(It.IsAny<string>(), It.IsAny<string>()))
+				.Returns(new Mock<ConfigurationValueUpdater>().Object).Verifiable();
+
+			_loader = new VariantsSettingsLoaderImpl(_updaterFactory.Object);
 			File.Create(SolutionName);
 		}
 
@@ -92,6 +100,7 @@ namespace ConStringCat.Core.UnitTests.SettingsManagement
 			conStrSet.AddUpdater(new XmlFileConfigurationValueUpdater(ToAbsolutePath("./SomeFolder/../../someFile.xml"),
 				"/catalog/book[@id='bk102']/price"));
 			conStrSet.AddUpdater(new JsonFileConfigurationValueUpdater("R:/someJson.json", "$.store.book[0].title"));
+			
 			firstAspect.AddVariantsSet(conStrSet);
 			var driverSet = new ConfigurationValueVariantsSet("Driver");
 			driverSet.AddVariant("First string", "driver 1");
@@ -119,11 +128,12 @@ namespace ConStringCat.Core.UnitTests.SettingsManagement
 			aspects.ForEach(AssertAspectInDefaultState);
 			AssertAspectsEqual(firstAspect, aspects[0]);
 			AssertAspectsEqual(secondAspect, aspects[1]);
+			AssertUpdatersCreated(conStrSet.Updaters.Union(driverSet.Updaters).Union(defaultAddrSet.Updaters).ToList());
 		}
 
 		private string ToAbsolutePath(string path)
 		{
-			return Path.Combine(Directory.GetCurrentDirectory(), path);
+			return Path.Combine(Path.GetDirectoryName(SolutionName), path);
 		}
 
 		private void AssertAspectInDefaultState(ConfigurationAspect aspect)
@@ -149,23 +159,6 @@ namespace ConStringCat.Core.UnitTests.SettingsManagement
 		{
 			AssertConfigurationEntitiesEqual(expected, actual);
 			Assert.That(expected.Updaters.Count == actual.Updaters.Count);
-			foreach (var updater in actual.Updaters)
-				AssertUpdatersContainEqual(expected.Updaters, updater);
-		}
-
-		private void AssertUpdatersContainEqual(IReadOnlyList<ConfigurationValueUpdater> updaters,
-			ConfigurationValueUpdater updater)
-		{
-			if (updater is JsonFileConfigurationValueUpdater)
-			{
-				AssertContainsUpdater(updaters, (JsonFileConfigurationValueUpdater) updater,
-					(a, b) => a.DocumentPath == b.DocumentPath && a.JsonPath == b.JsonPath);
-			}
-			else if (updater is XmlFileConfigurationValueUpdater)
-			{
-				AssertContainsUpdater(updaters, (XmlFileConfigurationValueUpdater) updater,
-					(a, b) => a.DocumentPath == b.DocumentPath && a.XPath == b.XPath);
-			}
 		}
 
 		private void AssertContainsUpdater<TUpdater>(IEnumerable<ConfigurationValueUpdater> updaters,
@@ -178,6 +171,14 @@ namespace ConStringCat.Core.UnitTests.SettingsManagement
 		{
 			Assert.That(expected.Name == actual.Name);
 			CollectionAssert.AreEquivalent(expected.Aliases, actual.Aliases);
+		}
+
+		private void AssertUpdatersCreated(IList<ConfigurationValueUpdater> updaters)
+		{
+			foreach (var updater in updaters.OfType<JsonFileConfigurationValueUpdater>())
+				_updaterFactory.Verify(x => x.CreateJsonUpdater(updater.DocumentPath, updater.JsonPath), Times.Once);
+			foreach (var updater in updaters.OfType<XmlFileConfigurationValueUpdater>())
+				_updaterFactory.Verify(x => x.CreateXmlUpdater(updater.DocumentPath, updater.XPath), Times.Once);
 		}
 
 		[Test]

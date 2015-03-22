@@ -3,6 +3,7 @@ using Autofac;
 using ConStringCat.Core.SettingsManagement;
 using ConStringCat.Core.VSInterop;
 using EnvDTE;
+using ConStringCat.Core.ValueUpdating;
 
 namespace SergeyUskov.ConnectionStringCat
 {
@@ -24,6 +25,7 @@ namespace SergeyUskov.ConnectionStringCat
 			builder.Register(_ => getNativeService(typeof (DTE)) as DTE);
 			builder.RegisterType<VariantsSettingsLoaderImpl>().As<VariantsSettingsLoader>();
 			builder.RegisterType<VariantsSetServiceImpl>().As<VariantsSetService>();
+			builder.RegisterType<ConfigurationValueUpdaterFactoryImpl>().As<ConfigurationValueUpdaterFactory>();
 		}
 	}
 }

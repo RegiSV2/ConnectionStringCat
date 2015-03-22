@@ -33,34 +33,6 @@ namespace ConStringCat.Core.Model
 
 		#endregion
 
-		private void InvokeUpdaters(string oldAlias)
-		{
-			var exceptions = new List<Exception>();
-
-			foreach (var updater in _updaters)
-			{
-				try
-				{
-					updater.SetNewValue(_variants[oldAlias]);
-				}
-				catch (Exception ex)
-				{
-					exceptions.Add(ex);
-				}
-			}
-
-			if (exceptions.Any())
-				throw new AggregateException(exceptions);
-		}
-
-		[ContractInvariantMethod]
-		private void Invariant()
-		{
-			Contract.Invariant(!string.IsNullOrEmpty(Name));
-			Contract.Invariant(_variants != null);
-			Contract.Invariant(_updaters != null);
-		}
-
 		#region State
 
 		private readonly IDictionary<string, string> _variants;
@@ -100,8 +72,10 @@ namespace ConStringCat.Core.Model
 			Contract.Requires(!string.IsNullOrEmpty(value));
 
 			_variants.Add(alias, value);
-			if (CurrentVariantAlias == null)
+			if (!HasChosenVariant)
+			{
 				SetCurrentVariant(alias);
+			}
 		}
 
 		public void SetCurrentVariant(string variantAlias)
@@ -113,15 +87,67 @@ namespace ConStringCat.Core.Model
 			CurrentVariantAlias = variantAlias;
 			if (oldAlias != CurrentVariantAlias)
 			{
-				InvokeUpdaters(oldAlias);
+				InvokeUpdaters();
 			}
 		}
 
+		/// <summary>
+		/// Adds updater to current set.
+		/// </summary>
+		/// <param name="updater">An updater to add</param>
 		public void AddUpdater(ConfigurationValueUpdater updater)
 		{
 			Contract.Assert(!_updaters.Contains(updater));
 
 			_updaters.Add(updater);
+		}
+
+		/// <summary>
+		/// Invokes all registered updaters if has some chosen variant
+		/// </summary>
+		public void RefreshSelectedVariant()
+		{
+			if(HasChosenVariant)
+			{
+				InvokeUpdaters();
+			}
+		}
+
+		#endregion
+
+		#region Private Methods
+
+		private bool HasChosenVariant
+		{
+			get { return CurrentVariantAlias != null; }
+		}
+
+		private void InvokeUpdaters()
+		{
+			var exceptions = new List<Exception>();
+
+			foreach (var updater in _updaters)
+			{
+				try
+				{
+					updater.SetNewValue(_variants[CurrentVariantAlias]);
+				}
+				catch (Exception ex)
+				{
+					exceptions.Add(ex);
+				}
+			}
+
+			if (exceptions.Any())
+				throw new AggregateException(exceptions);
+		}
+
+		[ContractInvariantMethod]
+		private void Invariant()
+		{
+			Contract.Invariant(!string.IsNullOrEmpty(Name));
+			Contract.Invariant(_variants != null);
+			Contract.Invariant(_updaters != null);
 		}
 
 		#endregion

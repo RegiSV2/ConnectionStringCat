@@ -13,6 +13,8 @@ namespace ConStringCat.Core.SettingsManagement
 {
 	public class VariantsSettingsLoaderImpl : VariantsSettingsLoader
 	{
+		#region Constants
+
 		public const string SettingsFileSuffix = ".ConStrCat.json";
 		private const string JsonUpdaterType = "jsonPath";
 		private const string XmlUpdaterType = "xPath";
@@ -39,7 +41,19 @@ namespace ConStringCat.Core.SettingsManagement
 		private const string SettingsFileFormatIsInvalidMsg =
 			"Could not load ConnectionStringCat settings because settings file is invalid. The following errors found:\n\r{0}";
 
+		#endregion
+
+		#region Private fields
+
 		private JsonSchema _schema;
+		private ConfigurationValueUpdaterFactory _updaterFactory;
+
+		#endregion
+
+		public VariantsSettingsLoaderImpl(ConfigurationValueUpdaterFactory updaterFactory)
+		{
+			_updaterFactory = updaterFactory;
+		}
 
 		public ConfigurationAliasesEntity GetEmptyAspect()
 		{
@@ -53,7 +67,7 @@ namespace ConStringCat.Core.SettingsManagement
 
 			var settingsFileName = GetSettingsFileName(solutionFileName);
 			var settings = LoadSettings(settingsFileName);
-			return InitConfigurationAspects(settings[AspectsProperty]);
+			return InitConfigurationAspects(Path.GetDirectoryName(solutionFileName), settings[AspectsProperty]);
 		}
 
 		private string GetSettingsFileName(string solutionFileName)
@@ -115,31 +129,34 @@ namespace ConStringCat.Core.SettingsManagement
 			return _schema;
 		}
 
-		private IList<ConfigurationAliasesEntity> InitConfigurationAspects(JToken aspectsArray)
+		private IList<ConfigurationAliasesEntity> InitConfigurationAspects(string solutionDirectory, JToken aspectsArray)
 		{
-			return aspectsArray.Select(InitConfigurationAspect).ToList();
+			var aspects = aspectsArray.Select(x => InitConfigurationAspect(solutionDirectory, x)).ToList();
+			foreach (var aspect in aspects)
+				aspect.RefreshSetVariants();
+			return aspects.Cast<ConfigurationAliasesEntity>().ToList();
 		}
 
-		private ConfigurationAliasesEntity InitConfigurationAspect(JToken aspectToken)
+		private ConfigurationAspect InitConfigurationAspect(string solutionDirectory, JToken aspectToken)
 		{
 			var aspect = new ConfigurationAspect(ReadValue(aspectToken, NameProperty));
 
 			foreach (var variant in aspectToken[VariantsProperty])
 				aspect.AddAlias(variant.Value<string>());
-			foreach (var set in aspectToken[SetsProperty].Select(InitVariantsSet))
+			foreach (var set in aspectToken[SetsProperty].Select(x => InitVariantsSet(solutionDirectory, x)))
 				aspect.AddVariantsSet(set);
 
 			return aspect;
 		}
 
-		private ConfigurationVariantsSet InitVariantsSet(JToken setSettings)
+		private ConfigurationVariantsSet InitVariantsSet(string solutionDirectory, JToken setSettings)
 		{
 			var variantsSet = new ConfigurationValueVariantsSet(ReadValue(setSettings, NameProperty));
 
 			foreach (var variant in setSettings[VariantsProperty])
 				variantsSet.AddVariant(ReadValue(variant, VariantAliasProperty), ReadValue(variant, VariantValueProperty));
 			foreach (var updaterSettings in setSettings[UpdatersProperty])
-				variantsSet.AddUpdater(CreateUpdater(updaterSettings));
+				variantsSet.AddUpdater(CreateUpdater(solutionDirectory, updaterSettings));
 
 			return variantsSet;
 		}
@@ -149,30 +166,20 @@ namespace ConStringCat.Core.SettingsManagement
 			return token[key].Value<string>();
 		}
 
-		private ConfigurationValueUpdater CreateUpdater(JToken updaterSettings)
+		private ConfigurationValueUpdater CreateUpdater(string solutionDirectory, JToken updaterSettings)
 		{
 			var updaterType = ReadValue(updaterSettings, UpdaterTypeProperty);
-			var filePath = ConvertToAbsolutePath(ReadValue(updaterSettings, UpdaterFilePathProperty));
+			var filePath = ConvertToAbsolutePath(solutionDirectory, ReadValue(updaterSettings, UpdaterFilePathProperty));
 			if (updaterType == JsonUpdaterType)
-				return CreateJsonUpdater(filePath, ReadValue(updaterSettings, UpdaterJsonPathProperty));
+				return _updaterFactory.CreateJsonUpdater(filePath, ReadValue(updaterSettings, UpdaterJsonPathProperty));
 			if (updaterType == XmlUpdaterType)
-				return CreateXmlUpdater(filePath, ReadValue(updaterSettings, UpdaterXPathProperty));
+				return _updaterFactory.CreateXmlUpdater(filePath, ReadValue(updaterSettings, UpdaterXPathProperty));
 			throw new VariantsSettingsLoadingException(string.Format(UnsupportedUpdaterTypeMsg, updaterType));
 		}
 
-		private string ConvertToAbsolutePath(string pathFromSettings)
+		private string ConvertToAbsolutePath(string solutionDirectory, string pathFromSettings)
 		{
-			return Path.Combine(Directory.GetCurrentDirectory(), pathFromSettings);
-		}
-
-		private ConfigurationValueUpdater CreateXmlUpdater(string filePath, string xmlPath)
-		{
-			return new XmlFileConfigurationValueUpdater(filePath, xmlPath);
-		}
-
-		private ConfigurationValueUpdater CreateJsonUpdater(string filePath, string jsonPath)
-		{
-			return new JsonFileConfigurationValueUpdater(filePath, jsonPath);
+			return Path.Combine(solutionDirectory, pathFromSettings);
 		}
 	}
 }

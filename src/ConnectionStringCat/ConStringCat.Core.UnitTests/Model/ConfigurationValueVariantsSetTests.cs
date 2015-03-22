@@ -174,6 +174,34 @@ namespace ConStringCat.Core.UnitTests.Model
 			Assert.That(() => _variantsSet.AddUpdater(updater), Throws.Exception);
 		}
 
+		[Test]
+		public void RefreshSelectedVariant_CurrentVariantIsNotNull_ShouldInvokeUpdaters()
+		{
+			//Arrange
+			InitVariants();
+			var expectedVariant = _variantsSet.Variants[_variantsSet.CurrentVariantAlias];
+			var updaters = InitUpdaters(expectedVariant);
+
+			//Act
+			_variantsSet.RefreshSelectedVariant();
+
+			//Assert
+			updaters.ForEach(updater => updater.Verify(x => x.SetNewValue(expectedVariant), Times.Once));
+		}
+
+		[Test]
+		public void RefreshSelectedVariant_CurrentVariantIsNull_ShouldNotInvokeUpdaters()
+		{
+			//Arrange
+			var updaters = InitUpdaters(It.IsAny<string>());
+
+			//Act
+			_variantsSet.RefreshSelectedVariant();
+
+			//Assert
+			updaters.ForEach(updater => updater.Verify(x => x.SetNewValue(It.IsAny<string>()), Times.Never));
+		}
+
 		private KeyValuePair<string, string> InitVariants()
 		{
 			foreach (var idx in Enumerable.Range(0, 3))

@@ -118,6 +118,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Model\ConfigurationAspect.cs" />
+    <Compile Include="SettingsManagement\ConfigurationValueUpdaterFactory.cs" />
+    <Compile Include="ValueUpdating\ConfigurationValueUpdaterFactoryImpl.cs" />
     <Compile Include="VSInterop\NullConfigurationAliasesEntity.cs" />
     <Compile Include="SettingsManagement\VariantsSettingsLoaderImpl.cs" />
     <Compile Include="Utils\EmbeddedResourcesHelper.cs" />

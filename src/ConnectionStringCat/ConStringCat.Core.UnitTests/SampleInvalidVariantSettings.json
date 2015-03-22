@@ -1,22 +1,74 @@
 ﻿{
-	"sets": [
+	"aspects": [
 		{
-			"name": "First variants set",
-			"variants": [
-				{ "alias": "First item", "schemeVioaltionProperty": "firstValueItem" },
-				{ "alias": "Second item", "value": "secondValueItem" },
-				{ "alias": "third item", "value": "thirdValueItem" }
-			],
-			"updaters": [
+			"schemeVioaltionProperty": "DB Connection string",
+			"variants": [ "First string", "Second string", "Third string" ],
+			"valueSets": [
 				{
-					"type": "xPath",
-					"filePath": "./SomeFolder/../../someFile.xml",
-					"xPath": "/catalog/book[@id='bk102']/price"
+					"name": "Connection string",
+					"variants": [
+						{ "alias": "First string", "value": "connection string 1" },
+						{ "alias": "Second string", "value": "connection string 2" },
+						{ "alias": "Third string", "value": "connection string 3" }
+					],
+					"updaters": [
+						{
+							"type": "xPath",
+							"filePath": "./SomeFolder/../../someFile.xml",
+							"xPath": "/catalog/book[@id='bk102']/price"
+						},
+						{
+							"type": "jsonPath",
+							"filePath": "R:/someJson.json",
+							"jsonPath": "$.store.book[0].title"
+						}
+					]
 				},
 				{
-					"type": "jsonPath",
-					"filePath": "R:/someJson.json",
-					"jsonPath": "$.store.book[0].title"
+					"name": "Driver",
+					"variants": [
+						{ "alias": "First string", "value": "driver 1" },
+						{ "alias": "Second string", "value": "driver 2" },
+						{ "alias": "Third string", "value": "driver 3" }
+					],
+					"updaters": [
+						{
+							"type": "xPath",
+							"filePath": "./SomeFolder/../../someFile.xml",
+							"xPath": "/catalog/book[@id='bk102']/author"
+						},
+						{
+							"type": "jsonPath",
+							"filePath": "R:/someJson.json",
+							"jsonPath": "$.store.book[0].author"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Web service address",
+			"variants": ["First string", "Second string", "Third string"],
+			"valueSets": [
+				{
+					"name": "Default set",
+					"variants": [
+						{ "alias": "First string", "value": "address 1" },
+						{ "alias": "Second string", "value": "address 2" },
+						{ "alias": "Third string", "value": "address 3" }
+					],
+					"updaters": [
+						{
+							"type": "xPath",
+							"filePath": "./SomeFolder/../../someFile.xml",
+							"xPath": "/catalog/book[@id='bk102']/genre"
+						},
+						{
+							"type": "jsonPath",
+							"filePath": "R:/someJson.json",
+							"jsonPath": "$.store.book[0].genre"
+						}
+					]
 				}
 			]
 		}

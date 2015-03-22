@@ -68,6 +68,12 @@ namespace ConStringCat.Core.Model
 			_variantsSet.Add(variantsSet);
 		}
 
+		public void RefreshSetVariants()
+		{
+			foreach (var set in _variantsSet)
+				set.RefreshSelectedVariant();
+		}
+
 		private void UpdateVariantInSets()
 		{
 			foreach (var set in _variantsSet.Where(x => x.Aliases.Contains(CurrentVariantAlias)))
