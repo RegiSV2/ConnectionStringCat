@@ -211,18 +211,6 @@ namespace ConStringCat.Core.UnitTests.SettingsManagement
 			CollectionAssert.IsEmpty(aspects);
 		}
 
-		[Test]
-		public void LoadAspectsForSolution_SettingsFileDoesNotExist_ShouldCreateDefaultFile()
-		{
-			Assert.That(!File.Exists(ConnectionStringSettingsFileName));
-			_loader.LoadAspectsForSolution(SolutionName);
-
-			Assert.That(File.Exists(ConnectionStringSettingsFileName));
-			var newSettings = _loader.LoadAspectsForSolution(SolutionName);
-
-			CollectionAssert.IsEmpty(newSettings);
-		}
-
 		private void AssertLoadingThrowsException()
 		{
 			Assert.That(() => _loader.LoadAspectsForSolution(SolutionName),

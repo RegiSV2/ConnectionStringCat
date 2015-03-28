@@ -49,6 +49,7 @@ namespace ConStringCat.Core.ValueUpdating
 		private void TrySetValue(string newValue)
 		{
 			var document = new XmlDocument();
+			document.PreserveWhitespace = true;
 			document.Load(DocumentPath);
 
 			var nodes = document.SelectNodes(XPath);

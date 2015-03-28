@@ -81,25 +81,32 @@ namespace ConStringCat.Core.SettingsManagement
 
 		private JObject LoadSettings(string settingsFileName)
 		{
-			if (!File.Exists(settingsFileName))
-				CreateDefaultSettingsFile(settingsFileName);
-			var settings = ReadSettingsFromFile(settingsFileName);
+			string settingsRaw = ReadRawSettings(settingsFileName);
+			var settings = ParseSettingsFromString(settingsRaw);
 			ValidateSettings(settings);
 			return settings;
 		}
 
-		private void CreateDefaultSettingsFile(string settingsFileName)
+		private static string ReadRawSettings(string settingsFileName)
 		{
-			using (var writer = new StreamWriter(settingsFileName))
-				writer.Write(EmbeddedResourcesHelper.ReadEmbeddedResourceFile(DefaultSettingsResourceName));
+			string settingsRaw;
+			if (File.Exists(settingsFileName))
+			{
+				using (var reader = new StreamReader(settingsFileName))
+					settingsRaw = reader.ReadToEnd();
+			}
+			else
+			{
+				settingsRaw = EmbeddedResourcesHelper.ReadEmbeddedResourceFile(DefaultSettingsResourceName);
+			}
+			return settingsRaw;
 		}
 
-		private static JObject ReadSettingsFromFile(string settingsFileName)
+		private static JObject ParseSettingsFromString(string settingsString)
 		{
 			try
 			{
-				using (var reader = new StreamReader(settingsFileName))
-					return JObject.Parse(reader.ReadToEnd());
+				return JObject.Parse(settingsString);
 			}
 			catch (JsonReaderException ex)
 			{
