@@ -70,6 +70,12 @@ namespace ConStringCat.Core.SettingsManagement
 			return InitConfigurationAspects(Path.GetDirectoryName(solutionFileName), settings[AspectsProperty]);
 		}
 
+		public bool SettingsExist(string solutionFileName)
+		{
+			var settingsFileName = GetSettingsFileName(solutionFileName);
+			return File.Exists(settingsFileName);
+		}
+
 		private string GetSettingsFileName(string solutionFileName)
 		{
 			var fileName = Path.GetFileNameWithoutExtension(solutionFileName) + SettingsFileSuffix;

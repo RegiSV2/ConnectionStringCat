@@ -14,8 +14,16 @@ namespace ConStringCat.Core.VSInterop
 		/// </summary>
 		/// <param name="solutionFileName">A full or relative path to solution file</param>
 		/// <returns>Fully initialized variants set</returns>
-		/// <exception cref="VariantsSettingsLoadingException">Thrown when some error occured during settings loading</exception>
+		/// <exception cref="VariantsSettingsLoadingException">
+		///     Thrown when some error occured during settings loading
+		/// </exception>
 		IList<ConfigurationAliasesEntity> LoadAspectsForSolution(string solutionFileName);
+
+		/// <summary>
+		///     Returns <value>True</value>, if settings are available for the specified solution,
+		/// otherwise returns <value>False</value>
+		/// </summary>
+		bool SettingsExist(string solutionFileName);
 
 		/// <summary>
 		///     Returns empty set
@@ -30,6 +38,11 @@ namespace ConStringCat.Core.VSInterop
 		{
 			Contract.Ensures(Contract.Result<IList<ConfigurationAliasesEntity>>() != null);
 			return null;
+		}
+
+		public bool SettingsExist(string solutionFileName)
+		{
+			return default(bool);
 		}
 
 		public ConfigurationAliasesEntity GetEmptyAspect()

@@ -15,6 +15,7 @@ namespace ConStringCat.Core.UnitTests.VSInterop
 	{
 		private const string DefaultSolutionPath = "DefaultSolution.sln";
 		private const string ModifiedSolutionPath = "ModifiedSolution.sln";
+		private const string SettingsValidationError = "some validation error";
 		private Mock<ConfigurationAliasesEntity> _defaultAspect, _defaultAspect2, _modifiedAspect;
 		private Mock<DTE> _dte;
 		private Mock<VariantsSettingsLoader> _loader;
@@ -186,15 +187,33 @@ namespace ConStringCat.Core.UnitTests.VSInterop
 		}
 
 		[Test]
-		[TestCase(true)]
-		[TestCase(false)]
-		public void IsServiceAvailable_ShouldBeAvailableOnlyWhenSolutionIsOpen(bool isSolutionOpen)
+		[TestCase(true, true, true)]
+		[TestCase(true, false, false)]
+		[TestCase(false, true, false)]
+		[TestCase(false, false, false)]
+		public void IsServiceAvailable_AfterSettingsLoaded_Tests(bool isSolutionOpen, bool settingsExist, bool expectedResult)
 		{
 			//Arrange
 			_solution.Setup(x => x.IsOpen).Returns(isSolutionOpen);
+			_loader.Setup(x => x.SettingsExist(It.IsAny<string>())).Returns(settingsExist);
+			_service.GetAspects();
 
 			//Assert
-			Assert.That(_service.IsServiceAvailable == _solution.Object.IsOpen);
+			Assert.That(_service.IsServiceAvailable == expectedResult);
+		}
+
+		[Test]
+		public void IsServiceAvailable_SolutionOpened_SettingsLoaded_SettingsInvalid_ShouldReturnFalse()
+		{
+			//Arrange
+			_solution.Setup(x => x.IsOpen).Returns(true);
+			_loader.Setup(x => x.SettingsExist(It.IsAny<string>())).Returns(true);
+			_loader.Setup(x => x.LoadAspectsForSolution(It.IsAny<string>()))
+				.Throws(new VariantsSettingsLoadingException(SettingsValidationError));
+			_service.GetAspects();
+
+			//Assert
+			Assert.That(!_service.IsServiceAvailable);
 		}
 
 		#region Initialization
@@ -219,6 +238,7 @@ namespace ConStringCat.Core.UnitTests.VSInterop
 				.Returns(_solution.Object);
 
 			_loader = new Mock<VariantsSettingsLoader>();
+			_loader.Setup(x => x.SettingsExist(It.IsAny<string>())).Returns(true);
 			_loader.Setup(x => x.GetEmptyAspect())
 				.Returns(NullConfigurationAliasesEntity.Instance);
 			RegisterVariantsSetForPath(_loader, DefaultSolutionPath,

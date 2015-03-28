@@ -4,6 +4,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using ConStringCat.Core.Model;
 using EnvDTE;
+using System;
 
 namespace ConStringCat.Core.VSInterop
 {
@@ -11,8 +12,9 @@ namespace ConStringCat.Core.VSInterop
 	{
 		private readonly DTE _solutionInteropObject;
 		private readonly object _syncRoot = new object();
-		private readonly VariantsSettingsLoader _variantsSettingsLoader;
+		private readonly VariantsSettingsLoader _settingsLoader;
 		private string _loadedSolutionPath;
+		private bool _settingsLoadedCorrectly = true;
 		private IList<ConfigurationAliasesEntity> _solutionAspects = new List<ConfigurationAliasesEntity>(); 
 		private ConfigurationAliasesEntity _workingEntity = NullConfigurationAliasesEntity.Instance;
 
@@ -21,7 +23,7 @@ namespace ConStringCat.Core.VSInterop
 			Contract.Requires(solutionInteropObject != null);
 			Contract.Requires(variantsSettingsLoader != null);
 			_solutionInteropObject = solutionInteropObject;
-			_variantsSettingsLoader = variantsSettingsLoader;
+			_settingsLoader = variantsSettingsLoader;
 		}
 
 		private Solution Solution
@@ -45,7 +47,8 @@ namespace ConStringCat.Core.VSInterop
 		{
 			UpdateAspects();
 			if (selectedAspect != null)
-				_workingEntity = _solutionAspects.FirstOrDefault(x => x.Name == selectedAspect) ?? NullConfigurationAliasesEntity.Instance;
+				_workingEntity = _solutionAspects.FirstOrDefault(x => x.Name == selectedAspect) 
+					?? NullConfigurationAliasesEntity.Instance;
 			return _workingEntity.Name;
 		}
 
@@ -59,7 +62,9 @@ namespace ConStringCat.Core.VSInterop
 
 		public bool IsServiceAvailable
 		{
-			get { return Solution.IsOpen; }
+			get { return Solution.IsOpen 
+				&& _settingsLoader.SettingsExist(Solution.FileName)
+				&& (_settingsLoadedCorrectly || WorkingSetChanged()); }
 		}
 
 		private void UpdateAspects()
@@ -80,11 +85,26 @@ namespace ConStringCat.Core.VSInterop
 					if (WorkingSetChanged())
 					{
 						_loadedSolutionPath = Solution.FileName;
-						_solutionAspects = _variantsSettingsLoader.LoadAspectsForSolution(Solution.FileName);
-						_workingEntity = _solutionAspects.FirstOrDefault() ?? NullConfigurationAliasesEntity.Instance;
+						TryLoadSettings();
 					}
 				}
 			}
+		}
+
+		private void TryLoadSettings()
+		{
+			try
+			{
+				_solutionAspects = _settingsLoader.LoadAspectsForSolution(Solution.FileName);
+				_settingsLoadedCorrectly = true;
+			}
+			catch (VariantsSettingsLoadingException)
+			{
+				_settingsLoadedCorrectly = false;
+				//TODO: inform user about error
+			}
+			_workingEntity = _solutionAspects.FirstOrDefault()
+							?? NullConfigurationAliasesEntity.Instance;
 		}
 
 		private bool WorkingSetChanged()
@@ -99,7 +119,7 @@ namespace ConStringCat.Core.VSInterop
 			{
 				if (!Solution.IsOpen)
 				{
-					_workingEntity = _variantsSettingsLoader.GetEmptyAspect();
+					_workingEntity = _settingsLoader.GetEmptyAspect();
 					_solutionAspects = new List<ConfigurationAliasesEntity>();
 					_loadedSolutionPath = null;
 				}

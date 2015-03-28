@@ -131,6 +131,55 @@ namespace ConStringCat.Core.UnitTests.SettingsManagement
 			AssertUpdatersCreated(conStrSet.Updaters.Union(driverSet.Updaters).Union(defaultAddrSet.Updaters).ToList());
 		}
 
+		[Test]
+		public void LoadAspectsForSolution_SettingsFileViolatesSchema_ShouldThrowException()
+		{
+			//Arrange
+			CreateInvalidSettingsFile();
+
+			//Assert
+			AssertLoadingThrowsException();
+		}
+
+		[Test]
+		public void LoadAspectsForSolution_SettingsFileHasNotJsonFormat_ShouldThrowException()
+		{
+			//Arrange
+			CreateSettingsFileWithInvalidJson();
+
+			//Assert
+			AssertLoadingThrowsException();
+		}
+
+		[Test]
+		public void LoadAspectsForSolution_SettingsFileDoesNotExist_ShouldReturnEmptyList()
+		{
+			//Act
+			var aspects = _loader.LoadAspectsForSolution(SolutionName);
+
+			//Assert
+			CollectionAssert.IsEmpty(aspects);
+		}
+
+		[Test]
+		public void SettingsExist_SettingsFileExists_ShouldReturnTrue()
+		{
+			//Arrange
+			CreateValidSettingsFile();
+
+			//Assert
+			Assert.That(_loader.SettingsExist(SolutionName));
+		}
+
+		[Test]
+		public void SettingsExist_SettingsFileDoesNotExist_ShouldReturnFalse()
+		{
+			Assert.That(!File.Exists(ConnectionStringSettingsFileName));
+			Assert.That(!_loader.SettingsExist(SolutionName));
+		}
+
+		#region Private methods
+
 		private string ToAbsolutePath(string path)
 		{
 			return Path.Combine(Path.GetDirectoryName(SolutionName), path);
@@ -181,36 +230,6 @@ namespace ConStringCat.Core.UnitTests.SettingsManagement
 				_updaterFactory.Verify(x => x.CreateXmlUpdater(updater.DocumentPath, updater.XPath), Times.Once);
 		}
 
-		[Test]
-		public void LoadAspectsForSolution_SettingsFileViolatesSchema_ShouldThrowException()
-		{
-			//Arrange
-			CreateInvalidSettingsFile();
-
-			//Assert
-			AssertLoadingThrowsException();
-		}
-
-		[Test]
-		public void LoadAspectsForSolution_SettingsFileHasNotJsonFormat_ShouldThrowException()
-		{
-			//Arrange
-			CreateSettingsFileWithInvalidJson();
-
-			//Assert
-			AssertLoadingThrowsException();
-		}
-
-		[Test]
-		public void LoadAspectsForSolution_SettingsFileDoesNotExist_ShouldReturnEmptyList()
-		{
-			//Act
-			var aspects = _loader.LoadAspectsForSolution(SolutionName);
-
-			//Assert
-			CollectionAssert.IsEmpty(aspects);
-		}
-
 		private void AssertLoadingThrowsException()
 		{
 			Assert.That(() => _loader.LoadAspectsForSolution(SolutionName),
@@ -234,5 +253,7 @@ namespace ConStringCat.Core.UnitTests.SettingsManagement
 			EmbeddedResourceInterop.WriteEmbeddedResourceToFile(
 				EmbeddedInvalidJsonFile, ConnectionStringSettingsFileName);
 		}
+
+		#endregion
 	}
 }
