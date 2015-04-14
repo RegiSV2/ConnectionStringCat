@@ -46,7 +46,7 @@ namespace ConStringCat.Core.SettingsManagement
 		#region Private fields
 
 		private JsonSchema _schema;
-		private ConfigurationValueUpdaterFactory _updaterFactory;
+		private readonly ConfigurationValueUpdaterFactory _updaterFactory;
 
 		#endregion
 

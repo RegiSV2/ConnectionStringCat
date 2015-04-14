@@ -38,11 +38,11 @@ namespace ConStringCat.Core.ValueUpdating
 			}
 			catch (FileNotFoundException ex)
 			{
-				ThrowConnectionStringUpdatingException(string.Format(FileNotFoundMsg, DocumentPath), ex);
+				ThrowConfigurationValueUpdatingException(string.Format(FileNotFoundMsg, DocumentPath), ex);
 			}
 			catch (XPathException ex)
 			{
-				ThrowConnectionStringUpdatingException(InvalidSelectionMsg, ex);
+				ThrowConfigurationValueUpdatingException(InvalidSelectionMsg, ex);
 			}
 		}
 
@@ -54,7 +54,7 @@ namespace ConStringCat.Core.ValueUpdating
 
 			var nodes = document.SelectNodes(XPath);
 			if (nodes == null || nodes.Count == 0)
-				ThrowConnectionStringUpdatingException(NodesNotFoundMsg);
+				ThrowConfigurationValueUpdatingException(NodesNotFoundMsg);
 
 			Debug.Assert(nodes != null, "nodes != null");
 			foreach (var node in nodes.Cast<XmlNode>())
@@ -63,12 +63,12 @@ namespace ConStringCat.Core.ValueUpdating
 			document.Save(DocumentPath);
 		}
 
-		private void ThrowConnectionStringUpdatingException(string message)
+		private void ThrowConfigurationValueUpdatingException(string message)
 		{
 			throw new ConfigurationValueUpdatingException(message);
 		}
 
-		private void ThrowConnectionStringUpdatingException(string message, Exception innerEx)
+		private void ThrowConfigurationValueUpdatingException(string message, Exception innerEx)
 		{
 			throw new ConfigurationValueUpdatingException(message, innerEx);
 		}

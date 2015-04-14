@@ -65,7 +65,7 @@ namespace ConStringCat.Core.UnitTests.ValueUpdating
 			File.Delete(TestDocumentPath);
 			var updater = CreateUpdater(TestDocumentPath, ValidXPath);
 
-			AssertConnectionStringUpdatingExceptionThrown(updater);
+			AssertConfigurationValueUpdatingExceptionThrown(updater);
 		}
 
 		[Test]
@@ -73,7 +73,7 @@ namespace ConStringCat.Core.UnitTests.ValueUpdating
 		{
 			var updater = CreateUpdater(TestDocumentPath, "some invalid xPath");
 
-			AssertConnectionStringUpdatingExceptionThrown(updater);
+			AssertConfigurationValueUpdatingExceptionThrown(updater);
 		}
 
 		[Test]
@@ -81,7 +81,7 @@ namespace ConStringCat.Core.UnitTests.ValueUpdating
 		{
 			var updater = CreateUpdater(TestDocumentPath, "/nonExistingRoute");
 
-			AssertConnectionStringUpdatingExceptionThrown(updater);
+			AssertConfigurationValueUpdatingExceptionThrown(updater);
 		}
 
 		private void SetNewValue_TestWithPath(string xPath)
@@ -101,7 +101,7 @@ namespace ConStringCat.Core.UnitTests.ValueUpdating
 			}
 		}
 
-		private void AssertConnectionStringUpdatingExceptionThrown(XmlFileConfigurationValueUpdater updater)
+		private void AssertConfigurationValueUpdatingExceptionThrown(XmlFileConfigurationValueUpdater updater)
 		{
 			Assert.That(() => updater.SetNewValue("some value"), Throws.InstanceOf<ConfigurationValueUpdatingException>());
 		}

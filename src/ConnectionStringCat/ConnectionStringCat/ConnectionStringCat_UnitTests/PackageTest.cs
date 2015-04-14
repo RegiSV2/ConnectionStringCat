@@ -42,6 +42,25 @@ namespace ConnectionStringCat_UnitTests
 			// Create a basic service provider
 			var serviceProvider = OleServiceProvider.CreateOleServiceProviderWithBasicServices();
 
+			var activityLogMock =
+				new GenericMockFactory(
+					"MockVsActivityLog",
+					new[] { typeof(Microsoft.VisualStudio.Shell.Interop.IVsActivityLog) }
+					).GetInstance();
+			serviceProvider.AddService(
+				typeof(Microsoft.VisualStudio.Shell.Interop.SVsActivityLog),
+				activityLogMock,
+				true);
+
+			var dteMock = new GenericMockFactory(
+					"MockDte",
+					new[] { typeof(EnvDTE.DTE) }
+					).GetInstance();
+			serviceProvider.AddService(
+				typeof(EnvDTE.DTE),
+				dteMock,
+				true);
+
 			// Site the package
 			Assert.AreEqual(0, package.SetSite(serviceProvider), "SetSite did not return S_OK");
 
